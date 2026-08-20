@@ -77,6 +77,8 @@
     }
     .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar-row.selected .name { font-weight: 700; }
+    .bar-row.clickable { cursor: pointer; }
+    .bar-row.clickable:hover .name { text-decoration: underline; }
     .track { background: #e8e2d6; height: 10px; }
     .fill { height: 10px; background: var(--accent); }
     .fill.inbound { background: var(--inbound); }
@@ -133,7 +135,7 @@
     <h2>Compared with similar-size metros</h2>
     <p id="peerIntro"></p>
     <div class="bar-list" id="peerBars"></div>
-    <p class="note">Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population to the one you selected.</p>
+    <p class="note">Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population to the one you selected. Click a bar to open that metro.</p>
 
     <h2>How to read this</h2>
     <p id="readThis"></p>
@@ -225,7 +227,7 @@
         .sort((a, b) => b.intraShare - a.intraShare);
     }
 
-    function bar(label, share, kind, selectedRow) {
+    function bar(label, share, kind, selectedRow, onClick) {
       const row = document.createElement("div");
       row.className = "bar-row" + (selectedRow ? " selected" : "");
       row.innerHTML =
@@ -235,6 +237,11 @@
       fill.style.width = Math.max(0, Math.min(100, share)).toFixed(1) + "%";
       if (kind) fill.classList.add(kind);
       row.querySelector(".pct").textContent = share.toFixed(1) + "%";
+      if (onClick) {
+        row.classList.add("clickable");
+        row.title = "Open this metro";
+        row.addEventListener("click", onClick);
+      }
       return row;
     }
 
@@ -300,7 +307,7 @@
       els.peerIntro.textContent =
         "Among metros of similar population, local movers usually dominate — but growing or college-heavy metros draw a larger share from outside.";
       els.peerBars.replaceChildren(
-        ...peers.map((p) => bar(p.name, p.intraShare, null, p.id === m.id))
+        ...peers.map((p) => bar(p.name, p.intraShare, null, p.id === m.id, () => render(p)))
       );
 
       els.readThis.textContent =
