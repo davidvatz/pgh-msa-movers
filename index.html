@@ -321,7 +321,9 @@
         fmt(m.fromRemainder) +
         " came from the rest of the metro.";
 
-      history.replaceState(null, "", "#" + m.id);
+      if (location.hash.replace("#", "") !== m.id) {
+        history.pushState(null, "", "#" + m.id);
+      }
     }
 
     function search(q) {
@@ -392,8 +394,15 @@
       if (!e.target.closest(".picker")) els.results.hidden = true;
     });
 
+    window.addEventListener("popstate", () => {
+      const m = byId[location.hash.replace("#", "")];
+      if (m && m.id !== selected.id) render(m);
+    });
+
     const fromHash = byId[location.hash.replace("#", "")];
-    render(fromHash || selected);
+    if (fromHash) selected = fromHash;
+    history.replaceState(null, "", "#" + selected.id);
+    render(selected);
   </script>
 </body>
 </html>
