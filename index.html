@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Who is moving into the Pittsburgh MSA?</title>
+  <meta name="description" content="Of people who moved last year and now live in the Pittsburgh metro, 69.7% already lived there. Source: ACS 2024." />
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1b1b1b;
+      --muted: #5a564e;
+      --line: #d8d2c6;
+      --paper: #fffdf8;
+      --accent: #1f4e79;
+      --inbound: #8a5a2b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .kicker {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 44px);
+      line-height: 1.15;
+      font-weight: 600;
+      margin: 0 0 16px;
+    }
+
+    .lede {
+      font-size: 20px;
+      color: var(--muted);
+      margin: 0 0 36px;
+    }
+
+    .hero {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 28px 28px 24px;
+      margin-bottom: 36px;
+    }
+
+    .hero-number {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: clamp(64px, 12vw, 88px);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    .hero-label {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 15px;
+      color: var(--muted);
+      margin: 10px 0 0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .stat {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    .stat b {
+      display: block;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .stat span {
+      display: block;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    h2 {
+      font-size: 24px;
+      margin: 40px 0 12px;
+    }
+
+    p { margin: 0 0 16px; }
+
+    .bar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0 8px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 56px;
+      gap: 12px;
+      align-items: center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 13px;
+    }
+
+    .track {
+      background: #e8e2d6;
+      height: 10px;
+    }
+
+    .fill { height: 10px; background: var(--accent); }
+    .fill.inbound { background: var(--inbound); }
+    .fill.muted { background: #7a756c; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 14px;
+      margin: 16px 0 8px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th:last-child, td:last-child { text-align: right; }
+    th { color: var(--muted); font-weight: 550; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .indent { padding-left: 18px; color: var(--muted); }
+
+    .note {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr 48px; }
+      .bar-row span:first-child { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="kicker">Pittsburgh MSA · ACS 2024</p>
+    <h1>Most people moving to a Pittsburgh-area address already lived here.</h1>
+    <p class="lede">
+      Of residents who changed homes last year and now live in the Pittsburgh metro,
+      69.7% already lived somewhere in that same metro.
+    </p>
+
+    <section class="hero">
+      <p class="hero-number">69.7%</p>
+      <p class="hero-label">Share of movers whose previous home was also in the Pittsburgh MSA &nbsp;±2.4 pp</p>
+      <div class="stats">
+        <div class="stat">
+          <b>163,017</b>
+          <span>Moved within the MSA</span>
+        </div>
+        <div class="stat">
+          <b>70,737</b>
+          <span>Moved in from outside</span>
+        </div>
+        <div class="stat">
+          <b>233,754</b>
+          <span>All movers, age 1+</span>
+        </div>
+      </div>
+    </section>
+
+    <h2>Where they lived one year ago</h2>
+    <p>
+      Anyone whose new address is in the Pittsburgh MSA counts, including someone
+      who only changed apartments in Allegheny County. People who stayed in the
+      same house are left out.
+    </p>
+
+    <div class="bar-list">
+      <div class="bar-row">
+        <span>Same Pittsburgh MSA</span>
+        <div class="track"><div class="fill" style="width:69.7%"></div></div>
+        <span>69.7%</span>
+      </div>
+      <div class="bar-row">
+        <span>Different U.S. metro</span>
+        <div class="track"><div class="fill inbound" style="width:21.4%"></div></div>
+        <span>21.4%</span>
+      </div>
+      <div class="bar-row">
+        <span>Abroad</span>
+        <div class="track"><div class="fill muted" style="width:4.8%"></div></div>
+        <span>4.8%</span>
+      </div>
+      <div class="bar-row">
+        <span>Micropolitan area</span>
+        <div class="track"><div class="fill muted" style="width:2.9%"></div></div>
+        <span>2.9%</span>
+      </div>
+      <div class="bar-row">
+        <span>Outside any CBSA</span>
+        <div class="track"><div class="fill muted" style="width:1.1%"></div></div>
+        <span>1.1%</span>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Origin one year ago</th>
+          <th>People</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Same Pittsburgh MSA</td><td>163,017</td></tr>
+        <tr><td class="indent">City of Pittsburgh</td><td>34,869</td></tr>
+        <tr><td class="indent">Rest of the MSA</td><td>128,148</td></tr>
+        <tr><td>Different U.S. metro</td><td>50,096</td></tr>
+        <tr><td>Micropolitan area</td><td>6,804</td></tr>
+        <tr><td>Not in a metro or micro</td><td>2,560</td></tr>
+        <tr><td>Abroad</td><td>11,277</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Compared with peer metros</h2>
+    <p>
+      Older Midwestern and Mid-Atlantic metros cluster in the high 60s to low 70s.
+      Pittsburgh sits with Buffalo, Milwaukee, and Philadelphia. Faster-growing
+      Columbus and Indianapolis draw a larger outside share.
+    </p>
+
+    <div class="bar-list">
+      <div class="bar-row"><span>St. Louis</span><div class="track"><div class="fill" style="width:74.2%"></div></div><span>74.2%</span></div>
+      <div class="bar-row"><span>Detroit</span><div class="track"><div class="fill" style="width:73.5%"></div></div><span>73.5%</span></div>
+      <div class="bar-row"><span>Milwaukee</span><div class="track"><div class="fill" style="width:70.2%"></div></div><span>70.2%</span></div>
+      <div class="bar-row"><span>Pittsburgh</span><div class="track"><div class="fill" style="width:69.7%"></div></div><span>69.7%</span></div>
+      <div class="bar-row"><span>Buffalo</span><div class="track"><div class="fill" style="width:69.6%"></div></div><span>69.6%</span></div>
+      <div class="bar-row"><span>Philadelphia</span><div class="track"><div class="fill" style="width:68.7%"></div></div><span>68.7%</span></div>
+      <div class="bar-row"><span>Youngstown</span><div class="track"><div class="fill" style="width:68.5%"></div></div><span>68.5%</span></div>
+      <div class="bar-row"><span>Columbus</span><div class="track"><div class="fill" style="width:67.7%"></div></div><span>67.7%</span></div>
+      <div class="bar-row"><span>Cincinnati</span><div class="track"><div class="fill" style="width:67.5%"></div></div><span>67.5%</span></div>
+      <div class="bar-row"><span>Baltimore</span><div class="track"><div class="fill" style="width:65.7%"></div></div><span>65.7%</span></div>
+      <div class="bar-row"><span>Indianapolis</span><div class="track"><div class="fill" style="width:65.5%"></div></div><span>65.5%</span></div>
+      <div class="bar-row"><span>Akron</span><div class="track"><div class="fill" style="width:58.3%"></div></div><span>58.3%</span></div>
+    </div>
+    <p class="note">Share of each metro’s movers whose previous home was in that same metro.</p>
+
+    <h2>How to read this</h2>
+    <p>
+      If 100 people now live in the Pittsburgh MSA and moved in the last year,
+      about 70 already lived in Allegheny, Armstrong, Beaver, Butler, Fayette,
+      Lawrence, Washington, or Westmoreland County. Most of those 70 came from
+      the suburbs and outlying counties, not from the City of Pittsburgh.
+    </p>
+    <p>
+      This is not return migration. The ACS only asks where you lived one year
+      ago. Someone who grew up here, spent a decade elsewhere, and moved back
+      last year is counted as arriving from outside.
+    </p>
+
+    <footer>
+      U.S. Census Bureau, American Community Survey 2024 1-year estimates,
+      table B07201. Geography: Pittsburgh, PA Metro Area (CBSA 38300).
+      Margin of error is the ACS 90% confidence interval.
+    </footer>
+  </main>
+</body>
+</html>
