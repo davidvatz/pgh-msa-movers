@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Who is moving into this metro?</title>
-  <meta name="description" content="For any U.S. metro, see what share of people who moved last year already lived in that same metro. ACS 2024." />
+  <title>Who is moving into this place?</title>
+  <meta name="description" content="Pick a destination and an origin to see what share of last year’s movers now live in one place and lived in the other a year ago. ACS 2024." />
   <style>
     :root {
       --bg: #f4f1ea;
@@ -31,31 +31,59 @@
     }
     h1 { font-size: clamp(28px, 4.6vw, 40px); line-height: 1.15; font-weight: 600; margin: 0 0 16px; }
     .lede { font-size: 20px; color: var(--muted); margin: 0 0 28px; }
-    .picker { position: relative; margin: 0 0 28px; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 0 0 28px; }
+    @media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+    .picker { position: relative; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+    .chips button {
+      font: 12px ui-sans-serif, system-ui, sans-serif;
+      padding: 5px 10px; border: 1px solid var(--line);
+      background: var(--paper); color: var(--ink); cursor: pointer;
+    }
+    .chips button[aria-pressed="true"] {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
     .picker label {
       display: block;
       font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--muted); margin-bottom: 6px;
     }
-    #q {
+    .types { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+    .types button {
+      font: 12px ui-sans-serif, system-ui, sans-serif;
+      padding: 5px 10px; border: 1px solid var(--line);
+      background: var(--paper); color: var(--muted); cursor: pointer;
+    }
+    .types button[aria-pressed="true"] {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .picker input[type="search"] {
       width: 100%; font: 16px ui-sans-serif, system-ui, sans-serif;
       padding: 10px 12px; border: 1px solid var(--line); background: var(--paper);
       color: var(--ink);
     }
-    #q:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-    #results {
+    .picker input[type="search"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .picker ul[role="listbox"] {
       position: absolute; z-index: 5; left: 0; right: 0;
       max-height: 280px; overflow: auto;
       margin: 0; padding: 0; list-style: none;
       background: var(--paper); border: 1px solid var(--line); border-top: 0;
     }
-    #results button {
-      display: block; width: 100%; text-align: left;
+    .picker ul[role="listbox"] button {
+      display: flex; align-items: baseline; gap: 8px;
+      width: 100%; text-align: left;
       font: 15px ui-sans-serif, system-ui, sans-serif;
       padding: 8px 12px; border: 0; background: transparent; color: var(--ink); cursor: pointer;
     }
-    #results button[aria-selected="true"], #results button:hover { background: #ebe6db; }
+    .picker ul[role="listbox"] button[aria-selected="true"],
+    .picker ul[role="listbox"] button:hover { background: #ebe6db; }
+    .type-tag {
+      flex: 0 0 auto;
+      font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--muted); min-width: 4.5rem;
+    }
+    .status { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: var(--muted); margin: 8px 0 0; min-height: 1.3em; }
     .hero { background: var(--paper); border: 1px solid var(--line); padding: 28px 28px 24px; margin-bottom: 36px; }
     .hero-number {
       font-family: ui-sans-serif, system-ui, sans-serif;
@@ -102,21 +130,31 @@
 </head>
 <body>
   <main>
-    <p class="kicker">U.S. metros · ACS 2024</p>
-    <h1 id="headline">Who is moving into this metro?</h1>
-    <p class="lede" id="lede">Choose a metropolitan area to see whether last year’s movers already lived there, or came from outside.</p>
+    <p class="kicker">U.S. census geographies · ACS 2024</p>
+    <h1 id="headline">Who moved here, and from where?</h1>
+    <p class="lede" id="lede">Choose where people live now, then where they lived one year ago. The Census only publishes a few origin buckets, so some pairs can be answered exactly and others cannot.</p>
 
-    <div class="picker">
-      <label for="q">Metropolitan area</label>
-      <input id="q" type="search" placeholder="Search metros — Pittsburgh, Austin, Buffalo…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" />
-      <ul id="results" role="listbox" hidden></ul>
+    <div class="pair">
+      <div class="picker" id="pickerTo">
+        <label for="qTo">Moved to</label>
+        <div class="types" id="types" role="group" aria-label="Destination type"></div>
+        <input id="qTo" type="search" placeholder="City of Pittsburgh, Allegheny County…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="resultsTo" aria-autocomplete="list" />
+        <ul id="resultsTo" role="listbox" hidden></ul>
+      </div>
+      <div class="picker" id="pickerFrom">
+        <label for="qFrom">Lived in one year ago</label>
+        <div class="chips" id="fromChips"></div>
+        <input id="qFrom" type="search" placeholder="Allegheny County, Pennsylvania, abroad…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="resultsFrom" aria-autocomplete="list" />
+        <ul id="resultsFrom" role="listbox" hidden></ul>
+      </div>
     </div>
+    <p class="status" id="status"></p>
 
     <section class="hero">
       <p class="hero-number" id="share">—</p>
-      <p class="hero-label" id="shareLabel">Share of movers whose previous home was also in this metro</p>
+      <p class="hero-label" id="shareLabel">Share of movers whose previous home was also in this place</p>
       <div class="stats">
-        <div class="stat"><b id="intraN">—</b><span>Moved within the MSA</span></div>
+        <div class="stat"><b id="intraN">—</b><span id="intraStat">Moved within this place</span></div>
         <div class="stat"><b id="inN">—</b><span>Moved in from outside</span></div>
         <div class="stat"><b id="allN">—</b><span>All movers, age 1+</span></div>
       </div>
@@ -132,10 +170,10 @@
       <tbody id="originTable"></tbody>
     </table>
 
-    <h2>Compared with similar-size metros</h2>
+    <h2 id="peerHeading">Compared with similar-size metros</h2>
     <p id="peerIntro"></p>
     <div class="bar-list" id="peerBars"></div>
-    <p class="note">Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population to the one you selected. Click a bar to open that metro.</p>
+    <p class="note" id="peerNote">Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population. Click a bar to open it.</p>
 
     <h2>How to read this</h2>
     <p id="readThis"></p>
@@ -145,53 +183,100 @@
       last year is counted as arriving from outside.
     </p>
 
-    <footer>
-      U.S. Census Bureau, American Community Survey 2024 1-year estimates,
-      table B07201. Puerto Rico metros are omitted; that table covers the 50
-      states and D.C. Margin of error is the ACS 90% confidence interval.
+    <footer id="footer">
+      U.S. Census Bureau, American Community Survey, tables B07201, B07204, and
+      B07001, via Census Reporter. 1-year estimates are used when the area is
+      large enough; smaller places and all tracts use 5-year estimates.
+      The Census does not publish arbitrary place-to-place flows. A
+      destination/origin pair can be answered only when it matches a published
+      bucket: same city, same county, same state, other state, or abroad.
+      Tracts cannot be used as a same-tract origin. Margin of error is the ACS
+      90% confidence interval.
     </footer>
   </main>
   <script src="data.js"></script>
   <script>
+    const CR = "https://api.censusreporter.org/1.0";
     const KEYS = ["id","name","total","sameMsa","sameMsaMoe","fromCity","fromRemainder","otherMetro","micro","nonMetro","abroad","abroadMoe","usMove","usMoveMoe","movers","inbound","intraShare"];
-    const metros = window.MSA_ROWS.map((row) => {
+    const TYPE_META = {
+      "040": { key: "state", label: "State", unit: "state", intra: "same state" },
+      "050": { key: "county", label: "County", unit: "county", intra: "same county" },
+      "060": { key: "cousub", label: "Township", unit: "township", intra: "same city or town" },
+      "140": { key: "tract", label: "Tract", unit: "census tract", intra: "same county" },
+      "160": { key: "place", label: "City", unit: "city or town", intra: "same city or town" },
+      "310": { key: "metro", label: "Metro", unit: "metro", intra: "same metro" },
+      "500": { key: "cd", label: "District", unit: "district", intra: "same county" },
+      "795": { key: "puma", label: "PUMA", unit: "PUMA", intra: "same county" },
+      "860": { key: "zcta", label: "ZIP", unit: "ZIP Code area", intra: "same county" }
+    };
+    const FILTERS = [
+      { id: "all", label: "All", sumlevs: "040,050,060,140,160,310,500,795,860" },
+      { id: "310", label: "Metros", sumlevs: "310" },
+      { id: "050", label: "Counties", sumlevs: "050" },
+      { id: "160", label: "Cities & towns", sumlevs: "160" },
+      { id: "060", label: "Townships", sumlevs: "060" },
+      { id: "140", label: "Tracts", sumlevs: "140" }
+    ];
+
+    const metros = (window.MSA_ROWS || []).map((row) => {
       const m = {};
       KEYS.forEach((k, i) => { m[k] = row[i]; });
+      m.kind = "metro";
+      m.sumlev = "310";
+      m.geoid = "31000US" + m.id;
+      m.intra = m.sameMsa;
+      m.unit = "metro";
+      m.intraLabel = "same metro";
+      m.source = "local";
       return m;
     });
     const byId = Object.fromEntries(metros.map((m) => [m.id, m]));
+    const byGeoid = Object.fromEntries(metros.map((m) => [m.geoid, m]));
+    const geoCache = { ...byGeoid };
     const shares = metros.map((m) => m.intraShare).sort((a, b) => a - b);
-    const median = shares[Math.floor(shares.length / 2)];
+    const median = shares[Math.floor(shares.length / 2)] || 0;
 
     const els = {
-      q: document.getElementById("q"),
-      results: document.getElementById("results"),
+      types: document.getElementById("types"),
+      qTo: document.getElementById("qTo"),
+      resultsTo: document.getElementById("resultsTo"),
+      qFrom: document.getElementById("qFrom"),
+      resultsFrom: document.getElementById("resultsFrom"),
+      fromChips: document.getElementById("fromChips"),
+      status: document.getElementById("status"),
       headline: document.getElementById("headline"),
       lede: document.getElementById("lede"),
       share: document.getElementById("share"),
       shareLabel: document.getElementById("shareLabel"),
       intraN: document.getElementById("intraN"),
+      intraStat: document.getElementById("intraStat"),
       inN: document.getElementById("inN"),
       allN: document.getElementById("allN"),
       rank: document.getElementById("rank"),
       originIntro: document.getElementById("originIntro"),
       originBars: document.getElementById("originBars"),
       originTable: document.getElementById("originTable"),
+      peerHeading: document.getElementById("peerHeading"),
       peerIntro: document.getElementById("peerIntro"),
       peerBars: document.getElementById("peerBars"),
+      peerNote: document.getElementById("peerNote"),
       readThis: document.getElementById("readThis"),
     };
 
-    let selected = byId["38300"] || metros[0];
-    let activeIndex = 0;
-    let matches = [];
+    const SPECIAL = {
+      abroad: { geoid: "abroad", name: "Abroad", special: "abroad", sumlev: "" },
+      us: { geoid: "us", name: "United States", special: "us", sumlev: "" },
+      restCounty: { geoid: "rest-of-county", name: "Rest of the county", special: "rest-of-county", sumlev: "" }
+    };
 
-    function fmt(n) {
-      return Math.round(n).toLocaleString("en-US");
-    }
-    function pct(n, d) {
-      return d ? (100 * n) / d : 0;
-    }
+    let filterId = "all";
+    let dest = byId["38300"] || metros[0];
+    let origin = dest;
+    let loadGen = 0;
+
+    function n(v) { return v == null ? 0 : +v; }
+    function fmt(v) { return Math.round(n(v)).toLocaleString("en-US"); }
+    function pct(a, d) { return d ? (100 * a) / d : 0; }
     function moePct(a, moeA, b, moeB) {
       if (moeA == null || moeB == null || !b) return null;
       const p = a / b;
@@ -200,31 +285,119 @@
       return (100 * Math.sqrt(inner)) / b;
     }
     function shortName(m) {
-      return m.name.replace(/, [A-Z]{2}.*$/, (s) => s.split("-")[0]);
+      return String(m.name || "").replace(/, [A-Z]{2}.*$/, (s) => s.split("-")[0]);
     }
-    function percentile(share) {
-      const below = shares.filter((s) => s < share).length;
-      return Math.round((100 * below) / (shares.length - 1));
+    function displayName(m) {
+      if (!m || !m.name) return "";
+      if ((m.kind === "metro" || m.sumlev === "310") && !/metro/i.test(m.name)) {
+        return m.name + " Metro Area";
+      }
+      return m.name;
     }
+    function typeMeta(sumlev) {
+      return TYPE_META[sumlev] || { key: "geo", label: "Area", unit: "area", intra: "this area" };
+    }
+    function geoToken(m) {
+      if (!m) return "";
+      if (m.special) return m.geoid;
+      return m.source === "local" ? m.id : m.geoid;
+    }
+    function currentSumlevs() {
+      return FILTERS.find((f) => f.id === filterId).sumlevs;
+    }
+    function parentOf(geo, sumlev) {
+      return (geo.parents || []).find((p) => p.sumlevel === sumlev && p.geoid !== geo.geoid);
+    }
+    function looksLikePrincipalCity(metro, place) {
+      const metroHead = String(metro.name || "").split("-")[0].split(",")[0].trim().toLowerCase();
+      const placeHead = String(place.name || "").split(",")[0].trim().toLowerCase();
+      return metroHead && placeHead && (metroHead === placeHead || metro.name.toLowerCase().startsWith(placeHead));
+    }
+    function ok(count, label, note, highlight) {
+      return { ok: true, count: n(count), label, note, highlight: highlight || [] };
+    }
+    function fail(reason) {
+      return { ok: false, reason };
+    }
+    function answer(d, o) {
+      if (!d || !d.movers) return fail("No mover counts for that destination.");
+      if (!o || o.geoid === d.geoid) {
+        if (d.noSameUnit) {
+          return fail("The Census does not publish moves inside a " + d.unit + ".");
+        }
+        return ok(d.intra, d.intraLabel, null, d.kind === "metro" ? ["Same metro"] : d.kind === "county" ? ["Same city or town", "Elsewhere in the same county", "Same county"] : ["Same city or town"]);
+      }
+      if (o.special === "abroad") return ok(d.abroad, "abroad", null, ["Abroad"]);
+      if (o.special === "us") return ok(d.movers - n(d.abroad), "the United States", null, []);
+      if (o.special === "rest-of-county") {
+        if (d.sameCountyElsewhere == null) {
+          return fail("This destination’s table does not split out the rest of the county.");
+        }
+        return ok(d.sameCountyElsewhere, "the rest of the county", null, ["Elsewhere in the county", "Elsewhere in the same county"]);
+      }
 
-    function originRows(m) {
-      return [
-        ["Same metro", m.sameMsa, true],
-        ["Principal city", m.fromCity, false],
-        ["Rest of the metro", m.fromRemainder, false],
-        ["Different U.S. metro", m.otherMetro, true],
-        ["Micropolitan area", m.micro, true],
-        ["Not in a metro or micro", m.nonMetro, true],
-        ["Abroad", m.abroad, true],
-      ];
-    }
+      const county = parentOf(d, "050");
+      const state = parentOf(d, "040");
+      const metro = parentOf(d, "310");
 
-    function similarPeers(m, n = 12) {
-      return metros
-        .slice()
-        .sort((a, b) => Math.abs(a.total - m.total) - Math.abs(b.total - m.total))
-        .slice(0, n)
-        .sort((a, b) => b.intraShare - a.intraShare);
+      if (o.sumlev === "050" && county && o.geoid === county.geoid) {
+        if (d.kind === "metro") {
+          return fail("A metro can span several counties. ACS does not say how many of this metro’s movers came from " + o.name + " specifically.");
+        }
+        if (d.sameCounty != null) {
+          return ok(d.sameCounty, o.name, null, ["Same city or town", "Elsewhere in the county", "Elsewhere in the same county", "Same county"]);
+        }
+      }
+      if (o.sumlev === "040" && state && o.geoid === state.geoid) {
+        if (d.kind === "metro") {
+          return fail("The metro table does not split movers by state. It uses same metro, other metro, or abroad.");
+        }
+        if (d.sameCounty != null || d.otherCountySameState != null) {
+          return ok(n(d.sameCounty) + n(d.otherCountySameState), o.name, null, ["Same city or town", "Elsewhere in the county", "Elsewhere in the same county", "Same county", "Other county, same state", "Different county, same state"]);
+        }
+      }
+      if (o.sumlev === "310" && (d.geoid === o.geoid || (metro && o.geoid === metro.geoid))) {
+        if (d.kind === "metro") return ok(d.sameMsa, o.name, null, ["Same metro"]);
+        return fail("ACS does not publish “lived in this metro last year” for a city, county, or tract destination. It only publishes same city, same county, same state, or abroad.");
+      }
+      if (d.kind === "metro" && o.sumlev === "160") {
+        if (looksLikePrincipalCity(d, o)) {
+          return ok(d.fromCity, o.name, "ACS reports this as moves from the metro’s principal city.", ["Principal city"]);
+        }
+        return fail("For a metro destination, ACS only isolates the principal city, not every city inside the metro.");
+      }
+      if (d.kind === "metro" && o.special === "rest-of-metro") {
+        return ok(d.fromRemainder, "the rest of the metro", null, ["Rest of the metro"]);
+      }
+      if (d.sumlev === "050" && (o.sumlev === "160" || o.sumlev === "060")) {
+        return fail("ACS does not publish moves into " + d.name + " from " + o.name + " specifically. It only has “same city or town” (any municipality) and “elsewhere in the county.”");
+      }
+      if ((d.kind === "place" || d.kind === "cousub") && (o.sumlev === "160" || o.sumlev === "060") && o.geoid !== d.geoid) {
+        return fail("ACS does not publish city-to-city flows. “Elsewhere in the same county” mixes every other municipality in the county.");
+      }
+      if ((d.kind === "place" || d.kind === "cousub" || d.sumlev === "140") && o.sumlev === "050" && county && o.geoid !== county.geoid) {
+        return fail("Movers from " + o.name + " are not isolated. They sit in “other county, same state” or “different state,” mixed with every other county.");
+      }
+      if (d.sumlev === "050" && o.sumlev === "050" && o.geoid !== d.geoid) {
+        return fail("This table does not publish county-to-county flows. “Other county, same state” mixes every other county in the state.");
+      }
+      return fail("ACS does not publish a flow from " + o.name + " to " + d.name + ". The published origin buckets are same city, same county, same state, other state, and abroad.");
+    }
+    async function attachParents(geo) {
+      if (!geo || geo.special || geo.parents) return geo;
+      try {
+        const data = await crJson("/geo/tiger2023/" + geo.geoid + "/parents");
+        geo.parents = data.parents || [];
+      } catch (_) {
+        geo.parents = [];
+      }
+      return geo;
+    }
+    function writeHash() {
+      const to = geoToken(dest);
+      const from = geoToken(origin);
+      const next = !from || from === to ? to : to + "/" + from;
+      if (location.hash.replace("#", "") !== next) history.pushState(null, "", "#" + next);
     }
 
     function bar(label, share, kind, selectedRow, onClick) {
@@ -239,170 +412,578 @@
       row.querySelector(".pct").textContent = share.toFixed(1) + "%";
       if (onClick) {
         row.classList.add("clickable");
-        row.title = "Open this metro";
+        row.title = "Open this place";
         row.addEventListener("click", onClick);
       }
       return row;
     }
 
-    function render(m) {
-      selected = m;
-      const moversMoe =
-        m.usMoveMoe != null && m.abroadMoe != null
-          ? Math.sqrt(m.usMoveMoe ** 2 + m.abroadMoe ** 2)
-          : null;
-      const moe = moePct(m.sameMsa, m.sameMsaMoe, m.movers, moversMoe);
-      const pctl = percentile(m.intraShare);
-      const higher = metros.filter((x) => x.intraShare < m.intraShare).length;
-
-      document.title = "Who is moving into the " + m.name + " metro?";
-      els.headline.textContent = "Who is moving into the " + m.name + " metro?";
-      els.lede.textContent =
-        "Of people who changed homes last year and now live in this metro, " +
-        m.intraShare.toFixed(1) +
-        "% already lived somewhere in the same metro.";
-      els.q.value = m.name;
-      els.share.textContent = m.intraShare.toFixed(1) + "%";
-      els.shareLabel.textContent =
-        "Share of movers whose previous home was also in this metro" +
-        (moe != null ? "  ±" + moe.toFixed(1) + " pp" : "");
-      els.intraN.textContent = fmt(m.sameMsa);
-      els.inN.textContent = fmt(m.inbound);
-      els.allN.textContent = fmt(m.movers);
-      els.rank.textContent =
-        "Higher local-move share than " +
-        higher.toLocaleString("en-US") +
-        " of " +
-        metros.length +
-        " U.S. metros (" +
-        pctl +
-        "th percentile). National median: " +
-        median.toFixed(1) +
-        "%.";
-
-      els.originIntro.textContent =
-        "Anyone whose new address is in this metro counts, including someone who only changed apartments inside it. People who stayed in the same house are left out.";
-
-      els.originBars.replaceChildren(
-        bar("Same metro", pct(m.sameMsa, m.movers), null),
-        bar("Different U.S. metro", pct(m.otherMetro, m.movers), "inbound"),
-        bar("Abroad", pct(m.abroad, m.movers), "muted"),
-        bar("Micropolitan area", pct(m.micro, m.movers), "muted"),
-        bar("Outside any CBSA", pct(m.nonMetro, m.movers), "muted")
-      );
-
-      const tableRows = originRows(m).map(([label, n, top], i) => {
+    function fillTable(rows) {
+      els.originTable.replaceChildren(...rows.map(([label, count, top]) => {
         const tr = document.createElement("tr");
         const td1 = document.createElement("td");
         const td2 = document.createElement("td");
         td1.textContent = label;
         if (!top) td1.className = "indent";
-        td2.textContent = fmt(n);
+        td2.textContent = fmt(count);
         tr.append(td1, td2);
         return tr;
-      });
-      els.originTable.replaceChildren(...tableRows);
+      }));
+    }
 
-      const peers = similarPeers(m);
-      els.peerIntro.textContent =
-        "Among metros of similar population, local movers usually dominate — but growing or college-heavy metros draw a larger share from outside.";
-      els.peerBars.replaceChildren(
-        ...peers.map((p) => bar(p.name, p.intraShare, null, p.id === m.id, () => render(p)))
+    async function crJson(path) {
+      const res = await fetch(CR + path);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    async function fetchTable(geoid, table, releases) {
+      let lastErr;
+      for (const rel of releases) {
+        try {
+          const payload = await crJson("/data/show/" + rel + "?table_ids=" + table + "&geo_ids=" + geoid);
+          const block = payload.data?.[geoid]?.[table];
+          if (block?.estimate) {
+            return {
+              payload,
+              block,
+              release: payload.release || { id: rel },
+              name: payload.geography?.[geoid]?.name
+            };
+          }
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      throw lastErr || new Error("No table");
+    }
+
+    function parseB07201(geoid, name, block, release) {
+      const e = block.estimate, err = block.error || {};
+      const sameMsa = n(e.B07201004);
+      const usMove = n(e.B07201003);
+      const abroad = n(e.B07201014);
+      const movers = usMove + abroad;
+      return {
+        id: geoid, geoid, name, kind: "metro", sumlev: "310",
+        total: n(e.B07201001), sameMsa, sameMsaMoe: err.B07201004,
+        fromCity: n(e.B07201005), fromRemainder: n(e.B07201006),
+        otherMetro: n(e.B07201007), micro: n(e.B07201010),
+        nonMetro: n(e.B07201013), abroad, abroadMoe: err.B07201014,
+        usMove, usMoveMoe: err.B07201003,
+        movers, inbound: movers - sameMsa,
+        intra: sameMsa, intraShare: movers ? +(100 * sameMsa / movers).toFixed(1) : 0,
+        unit: "metro", intraLabel: "same metro", source: "remote",
+        releaseName: release.name || release.id
+      };
+    }
+
+    function parseB07204(geoid, name, sumlev, block, release) {
+      const e = block.estimate, err = block.error || {};
+      const meta = typeMeta(sumlev);
+      const usMove = n(e.B07204003);
+      const abroad = n(e.B07204016);
+      const movers = usMove + abroad;
+      const samePlace = n(e.B07204004);
+      const sameCounty = n(e.B07204005) + n(e.B07204008);
+      const sameState = sameCounty + n(e.B07204010);
+      const intra = meta.key === "county" ? sameCounty
+        : meta.key === "state" ? sameState
+        : (meta.key === "place" || meta.key === "cousub") ? samePlace
+        : sameCounty;
+      return {
+        id: geoid, geoid, name, kind: meta.key, sumlev,
+        total: n(e.B07204001),
+        samePlace, sameCounty,
+        sameCountyElsewhere: n(e.B07204008),
+        otherCountySameState: n(e.B07204010),
+        otherState: n(e.B07204011),
+        abroad, abroadMoe: err.B07204016,
+        usMove, usMoveMoe: err.B07204003,
+        movers, inbound: movers - intra,
+        intra, intraShare: movers ? +(100 * intra / movers).toFixed(1) : 0,
+        intraMoe: moePct(intra, null, movers, null),
+        unit: meta.unit, intraLabel: meta.intra, source: "remote",
+        releaseName: release.name || release.id,
+        table: "B07204",
+        noSameUnit: !["040", "050", "060", "160", "310"].includes(sumlev)
+      };
+    }
+
+    function parseB07001(geoid, name, sumlev, block, release) {
+      const e = block.estimate, err = block.error || {};
+      const meta = typeMeta(sumlev);
+      const sameCounty = n(e.B07001033);
+      const otherCounty = n(e.B07001049);
+      const otherState = n(e.B07001065);
+      const abroad = n(e.B07001081);
+      const movers = sameCounty + otherCounty + otherState + abroad;
+      return {
+        id: geoid, geoid, name, kind: meta.key, sumlev,
+        total: n(e.B07001001),
+        sameCounty, otherCountySameState: otherCounty, otherState, abroad,
+        abroadMoe: err.B07001081, usMove: movers - abroad,
+        movers, inbound: movers - sameCounty,
+        intra: sameCounty, intraShare: movers ? +(100 * sameCounty / movers).toFixed(1) : 0,
+        unit: meta.unit, intraLabel: "same county", source: "remote",
+        releaseName: release.name || release.id,
+        table: "B07001",
+        noSameUnit: !["040", "050", "060", "160", "310"].includes(sumlev)
+      };
+    }
+
+    async function loadGeo(geoid, nameHint) {
+      if (geoCache[geoid]) return geoCache[geoid];
+      const sumlev = geoid.slice(0, 3);
+      const name = nameHint || geoid;
+      let parsed;
+      if (sumlev === "310") {
+        const got = await fetchTable(geoid, "B07201", ["latest", "acs2024_5yr"]);
+        parsed = parseB07201(geoid, got.name || name, got.block, got.release);
+      } else {
+        try {
+          const got = await fetchTable(geoid, "B07204", ["latest", "acs2024_5yr"]);
+          parsed = parseB07204(geoid, got.name || name, sumlev, got.block, got.release);
+        } catch (err) {
+          const got = await fetchTable(geoid, "B07001", ["acs2024_5yr", "latest"]);
+          parsed = parseB07001(geoid, got.name || name, sumlev, got.block, got.release);
+        }
+      }
+      geoCache[geoid] = parsed;
+      return parsed;
+    }
+
+    function similarPeers(m, count = 12) {
+      return metros
+        .slice()
+        .sort((a, b) => Math.abs(a.total - m.total) - Math.abs(b.total - m.total))
+        .slice(0, count)
+        .sort((a, b) => b.intraShare - a.intraShare);
+    }
+
+    function originModel(m) {
+      if (m.kind === "metro") {
+        return {
+          bars: [
+            ["Same metro", pct(m.sameMsa, m.movers), null],
+            ["Different U.S. metro", pct(m.otherMetro, m.movers), "inbound"],
+            ["Abroad", pct(m.abroad, m.movers), "muted"],
+            ["Micropolitan area", pct(m.micro, m.movers), "muted"],
+            ["Outside any CBSA", pct(m.nonMetro, m.movers), "muted"]
+          ],
+          rows: [
+            ["Same metro", m.sameMsa, true],
+            ["Principal city", m.fromCity, false],
+            ["Rest of the metro", m.fromRemainder, false],
+            ["Different U.S. metro", m.otherMetro, true],
+            ["Micropolitan area", m.micro, true],
+            ["Not in a metro or micro", m.nonMetro, true],
+            ["Abroad", m.abroad, true]
+          ]
+        };
+      }
+      if (m.table === "B07001") {
+        return {
+          bars: [
+            ["Same county", pct(m.sameCounty, m.movers), null],
+            ["Other county, same state", pct(m.otherCountySameState, m.movers), "inbound"],
+            ["Different state", pct(m.otherState, m.movers), "inbound"],
+            ["Abroad", pct(m.abroad, m.movers), "muted"]
+          ],
+          rows: [
+            ["Same county", m.sameCounty, true],
+            ["Different county, same state", m.otherCountySameState, true],
+            ["Different state", m.otherState, true],
+            ["Abroad", m.abroad, true]
+          ]
+        };
+      }
+      return {
+        bars: [
+          ["Same city or town", pct(m.samePlace, m.movers), null],
+          ["Elsewhere in the county", pct(m.sameCountyElsewhere, m.movers), "inbound"],
+          ["Other county, same state", pct(m.otherCountySameState, m.movers), "inbound"],
+          ["Different state", pct(m.otherState, m.movers), "inbound"],
+          ["Abroad", pct(m.abroad, m.movers), "muted"]
+        ],
+        rows: [
+          ["Same city or town", m.samePlace, true],
+          ["Elsewhere in the same county", m.sameCountyElsewhere, true],
+          ["Different county, same state", m.otherCountySameState, true],
+          ["Different state", m.otherState, true],
+          ["Abroad", m.abroad, true]
+        ]
+      };
+    }
+
+    function render() {
+      const m = dest;
+      const pair = answer(m, origin);
+      const origins = originModel(m);
+      const moe = m.kind === "metro" && origin && origin.geoid === m.geoid
+        ? moePct(
+            m.sameMsa, m.sameMsaMoe, m.movers,
+            m.usMoveMoe != null && m.abroadMoe != null
+              ? Math.sqrt(m.usMoveMoe ** 2 + m.abroadMoe ** 2)
+              : null
+          )
+        : null;
+
+      document.title = pair.ok
+        ? "Who moved to " + displayName(m) + " from " + displayName(origin) + "?"
+        : "Who is moving into " + displayName(m) + "?";
+      els.headline.textContent = pair.ok
+        ? "Who moved to " + displayName(m) + " from " + displayName(origin) + "?"
+        : "Who is moving into " + displayName(m) + "?";
+      if (pair.ok) {
+        const share = pct(pair.count, m.movers);
+        els.lede.textContent =
+          "Of people who changed homes last year and now live in " + m.name +
+          ", " + share.toFixed(1) + "% lived in " + pair.label + " one year ago.";
+        els.share.textContent = share.toFixed(1) + "%";
+        els.shareLabel.textContent =
+          "Share of movers to " + m.name + " whose previous home was in " + pair.label +
+          (moe != null ? "  ±" + moe.toFixed(1) + " pp" : "");
+        els.intraN.textContent = fmt(pair.count);
+        els.intraStat.textContent = "Lived in " + pair.label;
+        els.inN.textContent = fmt(m.movers - pair.count);
+        els.allN.textContent = fmt(m.movers);
+        els.rank.textContent = (pair.note ? pair.note + " " : "") +
+          (m.releaseName ? m.releaseName + ". " : "") +
+          "Same-house residents are left out.";
+        els.readThis.textContent =
+          "If 100 people now live in " + shortName(m) +
+          " and moved in the last year, about " + Math.round(share) +
+          " lived in " + pair.label + " one year ago.";
+      } else {
+        els.lede.textContent = pair.reason;
+        els.share.textContent = "—";
+        els.shareLabel.textContent = "This destination/origin pair is not in the published ACS tables";
+        els.intraN.textContent = "—";
+        els.intraStat.textContent = "Lived in " + (origin && origin.name ? origin.name : "that origin");
+        els.inN.textContent = "—";
+        els.allN.textContent = fmt(m.movers);
+        els.rank.textContent = pair.reason;
+        els.readThis.textContent = pair.reason;
+      }
+
+      els.qTo.value = displayName(m);
+      els.qFrom.value = displayName(origin);
+      paintFromChips();
+
+      els.originIntro.textContent =
+        "Anyone whose new address is in this " + m.unit +
+        " counts, including someone who only changed apartments inside it. People who stayed in the same house are left out.";
+      const hi = new Set(pair.ok ? pair.highlight : []);
+      els.originBars.replaceChildren(
+        ...origins.bars.map(([label, share, kind]) => bar(label, share, kind, hi.has(label)))
       );
+      fillTable(origins.rows);
 
-      els.readThis.textContent =
-        "If 100 people now live in " +
-        shortName(m) +
-        " and moved in the last year, about " +
-        Math.round(m.intraShare) +
-        " already lived somewhere in this metro. " +
-        fmt(m.fromCity) +
-        " of those local movers came from the principal city; " +
-        fmt(m.fromRemainder) +
-        " came from the rest of the metro.";
+      if (m.kind === "metro") {
+        els.peerHeading.textContent = "Compared with similar-size metros";
+        els.peerIntro.textContent =
+          "Among metros of similar population, local movers usually dominate — but growing or college-heavy metros draw a larger share from outside.";
+        els.peerNote.textContent =
+          "Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population. Click a bar to open it.";
+        const peers = similarPeers(m);
+        els.peerBars.replaceChildren(
+          ...peers.map((p) => bar(p.name, p.intraShare, null, p.geoid === m.geoid, () => chooseDest(p)))
+        );
+      } else {
+        els.peerHeading.textContent = "Compared with containing geographies";
+        els.peerIntro.textContent = "Loading the county, metro, and state that contain this place…";
+        els.peerNote.textContent =
+          "Each bar uses that geography’s own intra-move definition (same city, same county, or same metro). Click a bar to open it.";
+        els.peerBars.replaceChildren();
+        loadParents(m);
+      }
 
-      if (location.hash.replace("#", "") !== m.id) {
-        history.pushState(null, "", "#" + m.id);
+      writeHash();
+    }
+
+    function paintFromChips() {
+      const chips = [];
+      chips.push({ ref: dest, label: dest.noSameUnit ? "Same county" : "This " + dest.unit });
+      const county = parentOf(dest, "050");
+      const state = parentOf(dest, "040");
+      const metro = parentOf(dest, "310");
+      if ((dest.kind === "place" || dest.kind === "cousub") && dest.sameCountyElsewhere != null) {
+        chips.push({ ref: { ...SPECIAL.restCounty, name: county ? "Rest of " + county.display_name : "Rest of the county" }, label: county ? "Rest of " + county.display_name : "Rest of the county" });
+      }
+      if (county) chips.push({ ref: { geoid: county.geoid, name: county.display_name, sumlev: "050" }, label: county.display_name });
+      if (metro && dest.kind !== "metro") chips.push({ ref: { geoid: metro.geoid, name: metro.display_name, sumlev: "310" }, label: metro.display_name });
+      if (state) chips.push({ ref: { geoid: state.geoid, name: state.display_name, sumlev: "040" }, label: state.display_name });
+      chips.push({ ref: SPECIAL.us, label: "United States" });
+      chips.push({ ref: SPECIAL.abroad, label: "Abroad" });
+      els.fromChips.replaceChildren(...chips.map((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = c.label;
+        btn.setAttribute("aria-pressed", origin && origin.geoid === c.ref.geoid ? "true" : "false");
+        btn.addEventListener("click", () => chooseOrigin(c.ref));
+        return btn;
+      }));
+    }
+
+    async function loadParents(m) {
+      const gen = loadGen;
+      try {
+        const data = await crJson("/geo/tiger2023/" + m.geoid + "/parents");
+        if (gen !== loadGen) return;
+        const parents = (data.parents || []).filter((p) =>
+          p.geoid !== m.geoid && TYPE_META[p.sumlevel] && p.sumlevel !== "010"
+        );
+        const loaded = [];
+        for (const p of parents) {
+          try {
+            loaded.push(await loadGeo(p.geoid, p.display_name));
+          } catch (_) { /* skip missing parent tables */ }
+        }
+        if (gen !== loadGen) return;
+        const rows = [m, ...loaded];
+        els.peerIntro.textContent =
+          "The same question at the geographies that contain " + m.name + ".";
+        els.peerBars.replaceChildren(
+          ...rows.map((p) => bar(
+            p.name + " · " + p.intraLabel,
+            p.intraShare,
+            null,
+            p.geoid === m.geoid,
+            () => chooseDest(p)
+          ))
+        );
+      } catch (err) {
+        if (gen !== loadGen) return;
+        els.peerIntro.textContent = "Could not load containing geographies.";
       }
     }
 
-    function search(q) {
-      const t = q.trim().toLowerCase();
-      if (!t) return metros.slice(0, 12);
-      return metros.filter((m) => m.name.toLowerCase().includes(t)).slice(0, 20);
-    }
-
-    function showList(items) {
-      matches = items;
-      activeIndex = 0;
-      if (!items.length) {
-        els.results.hidden = true;
-        els.q.setAttribute("aria-expanded", "false");
-        return;
-      }
-      els.results.replaceChildren(
-        ...items.map((m, i) => {
+    function bindSearch(input, list, opts) {
+      const state = { matches: [], active: 0, timer: 0, gen: 0 };
+      function show(items) {
+        state.matches = items;
+        state.active = 0;
+        if (!items.length) {
+          list.hidden = true;
+          input.setAttribute("aria-expanded", "false");
+          return;
+        }
+        list.replaceChildren(...items.map((item, i) => {
           const li = document.createElement("li");
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.id = "opt-" + m.id;
           btn.setAttribute("role", "option");
           btn.setAttribute("aria-selected", i === 0 ? "true" : "false");
-          btn.textContent = m.name;
+          const tag = document.createElement("span");
+          tag.className = "type-tag";
+          tag.textContent = item.special ? "Other" : typeMeta(item.sumlev).label;
+          const name = document.createElement("span");
+          name.textContent = item.name;
+          btn.append(tag, name);
           btn.addEventListener("mousedown", (e) => {
             e.preventDefault();
-            choose(m);
+            opts.onChoose(item);
+            hide();
           });
           li.append(btn);
           return li;
-        })
-      );
-      els.results.hidden = false;
-      els.q.setAttribute("aria-expanded", "true");
-    }
-
-    function highlight(i) {
-      activeIndex = (i + matches.length) % matches.length;
-      [...els.results.querySelectorAll("button")].forEach((btn, idx) => {
-        btn.setAttribute("aria-selected", idx === activeIndex ? "true" : "false");
+        }));
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+      }
+      function hide() {
+        list.hidden = true;
+        input.setAttribute("aria-expanded", "false");
+      }
+      function highlight(i) {
+        if (!state.matches.length) return;
+        state.active = (i + state.matches.length) % state.matches.length;
+        [...list.querySelectorAll("button")].forEach((btn, idx) => {
+          btn.setAttribute("aria-selected", idx === state.active ? "true" : "false");
+        });
+      }
+      function localHits(q) {
+        const sumlevs = opts.sumlevs();
+        const extras = opts.extraHits ? opts.extraHits(q) : [];
+        if (!sumlevs.includes("310")) return extras;
+        const t = q.trim().toLowerCase();
+        const pool = t ? metros.filter((m) => m.name.toLowerCase().includes(t)) : metros;
+        return extras.concat(pool).slice(0, 12);
+      }
+      async function run(q, fromFocus) {
+        const gen = ++state.gen;
+        const current = opts.currentName();
+        const local = localHits(fromFocus && q === current ? "" : q);
+        if (fromFocus && (!q || q === current)) {
+          show(local.slice(0, 12));
+          return;
+        }
+        show(local.slice(0, 12));
+        if (q.trim().length < 2) return;
+        els.status.textContent = "Searching Census geographies…";
+        try {
+          const data = await crJson(
+            "/geo/search?q=" + encodeURIComponent(q.trim()) + "&sumlevs=" + opts.sumlevs()
+          );
+          if (gen !== state.gen) return;
+          const remote = (data.results || []).map((r) => ({
+            geoid: r.full_geoid,
+            name: r.full_name,
+            sumlev: r.sumlevel,
+            kind: typeMeta(r.sumlevel).key,
+            pending: true
+          }));
+          const seen = new Set(local.map((m) => m.geoid));
+          const merged = local.concat(remote.filter((r) => !seen.has(r.geoid)));
+          show(merged.slice(0, 20));
+          els.status.textContent = merged.length ? "" : "No matching geographies.";
+        } catch (err) {
+          if (gen !== state.gen) return;
+          els.status.textContent = local.length
+            ? "Census search is offline; showing local matches only."
+            : "Could not search Census geographies. Check the network and try again.";
+        }
+      }
+      input.addEventListener("focus", () => run(input.value, true));
+      input.addEventListener("input", () => {
+        clearTimeout(state.timer);
+        state.timer = setTimeout(() => run(input.value, false), 180);
       });
+      input.addEventListener("keydown", (e) => {
+        if (list.hidden && (e.key === "ArrowDown" || e.key === "Enter")) {
+          run(input.value, false);
+          return;
+        }
+        if (e.key === "ArrowDown") { e.preventDefault(); highlight(state.active + 1); }
+        if (e.key === "ArrowUp") { e.preventDefault(); highlight(state.active - 1); }
+        if (e.key === "Enter" && state.matches[state.active]) {
+          e.preventDefault();
+          opts.onChoose(state.matches[state.active]);
+          hide();
+        }
+        if (e.key === "Escape") {
+          hide();
+          input.value = opts.currentName();
+        }
+      });
+      return { hide, run };
     }
 
-    function choose(m) {
-      els.results.hidden = true;
-      els.q.setAttribute("aria-expanded", "false");
-      render(m);
-      els.q.blur();
+    async function resolveGeo(item) {
+      if (item.special) return item;
+      if (item.source === "local" && !item.pending) return item;
+      return byGeoid[item.geoid] || await loadGeo(item.geoid, item.name);
     }
 
-    els.q.addEventListener("focus", () => showList(search(els.q.value === selected.name ? "" : els.q.value)));
-    els.q.addEventListener("input", () => showList(search(els.q.value)));
-    els.q.addEventListener("keydown", (e) => {
-      if (els.results.hidden && (e.key === "ArrowDown" || e.key === "Enter")) {
-        showList(search(els.q.value === selected.name ? "" : els.q.value));
-        return;
+    async function chooseDest(item) {
+      els.resultsTo.hidden = true;
+      els.qTo.blur();
+      const gen = ++loadGen;
+      try {
+        const geo = await resolveGeo(item);
+        await attachParents(geo);
+        if (gen !== loadGen) return;
+        dest = geo;
+        origin = geo;
+        els.status.textContent = "";
+        render();
+      } catch (err) {
+        if (gen !== loadGen) return;
+        els.status.textContent = "No ACS mobility table for that destination.";
       }
-      if (e.key === "ArrowDown") { e.preventDefault(); highlight(activeIndex + 1); }
-      if (e.key === "ArrowUp") { e.preventDefault(); highlight(activeIndex - 1); }
-      if (e.key === "Enter" && matches[activeIndex]) { e.preventDefault(); choose(matches[activeIndex]); }
-      if (e.key === "Escape") {
-        els.results.hidden = true;
-        els.q.value = selected.name;
+    }
+
+    async function chooseOrigin(item) {
+      els.resultsFrom.hidden = true;
+      els.qFrom.blur();
+      origin = item.special ? item : { geoid: item.geoid, name: item.name, sumlev: item.sumlev || item.geoid.slice(0, 3) };
+      if (item.source === "local") origin = item;
+      els.status.textContent = "";
+      render();
+    }
+
+    const searchTo = bindSearch(els.qTo, els.resultsTo, {
+      onChoose: chooseDest,
+      sumlevs: currentSumlevs,
+      currentName: () => displayName(dest)
+    });
+    const searchFrom = bindSearch(els.qFrom, els.resultsFrom, {
+      onChoose: chooseOrigin,
+      sumlevs: () => "040,050,060,140,160,310,500,795,860",
+      currentName: () => displayName(origin),
+      extraHits: (q) => {
+        const t = q.trim().toLowerCase();
+        const extras = [SPECIAL.abroad, SPECIAL.us];
+        if (dest && (dest.kind === "place" || dest.kind === "cousub")) extras.unshift(SPECIAL.restCounty);
+        if (!t) return extras;
+        return extras.filter((x) => x.name.toLowerCase().includes(t));
       }
     });
+
+    FILTERS.forEach((f) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = f.label;
+      btn.setAttribute("aria-pressed", f.id === filterId ? "true" : "false");
+      btn.addEventListener("click", () => {
+        filterId = f.id;
+        [...els.types.children].forEach((b) => b.setAttribute("aria-pressed", b === btn ? "true" : "false"));
+        els.qTo.focus();
+        searchTo.run(els.qTo.value, true);
+      });
+      els.types.append(btn);
+    });
+
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(".picker")) els.results.hidden = true;
+      if (!e.target.closest("#pickerTo")) searchTo.hide();
+      if (!e.target.closest("#pickerFrom")) searchFrom.hide();
     });
 
-    window.addEventListener("popstate", () => {
-      const m = byId[location.hash.replace("#", "")];
-      if (m && m.id !== selected.id) render(m);
-    });
+    function parseHash() {
+      const h = location.hash.replace("#", "");
+      if (!h) return { to: dest.geoid || dest.id, from: null };
+      const [to, from] = h.split("/");
+      return { to, from: from || null };
+    }
+    async function loadByToken(token) {
+      if (!token) return null;
+      if (token === "abroad") return SPECIAL.abroad;
+      if (token === "us") return SPECIAL.us;
+      if (token === "rest-of-county") return SPECIAL.restCounty;
+      if (byId[token]) return byId[token];
+      if (byGeoid[token]) return byGeoid[token];
+      if (byGeoid["31000US" + token]) return byGeoid["31000US" + token];
+      return loadGeo(token);
+    }
 
-    const fromHash = byId[location.hash.replace("#", "")];
-    if (fromHash) selected = fromHash;
-    history.replaceState(null, "", "#" + selected.id);
-    render(selected);
+    async function openHash() {
+      const { to, from } = parseHash();
+      const gen = ++loadGen;
+      try {
+        const nextDest = await loadByToken(to);
+        if (!nextDest || nextDest.special) throw new Error("bad dest");
+        await attachParents(nextDest);
+        let nextOrigin = from ? await loadByToken(from) : nextDest;
+        if (from === "rest-of-county") nextOrigin = SPECIAL.restCounty;
+        if (from === "abroad") nextOrigin = SPECIAL.abroad;
+        if (from === "us") nextOrigin = SPECIAL.us;
+        if (gen !== loadGen) return;
+        dest = nextDest;
+        origin = nextOrigin || nextDest;
+        els.status.textContent = "";
+        render();
+      } catch (err) {
+        if (gen !== loadGen) return;
+        els.status.textContent = "Could not load that geography pair.";
+        dest = byId["38300"] || metros[0];
+        origin = dest;
+        render();
+      }
+    }
+
+    window.addEventListener("popstate", () => openHash());
+    openHash();
   </script>
 </body>
 </html>
