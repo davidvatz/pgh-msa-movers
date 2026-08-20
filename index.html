@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Who is moving into the Pittsburgh MSA?</title>
-  <meta name="description" content="Of people who moved last year and now live in the Pittsburgh metro, 69.7% already lived there. Source: ACS 2024." />
+  <title>Who is moving into this metro?</title>
+  <meta name="description" content="For any U.S. metro, see what share of people who moved last year already lived in that same metro. ACS 2024." />
   <style>
     :root {
       --bg: #f4f1ea;
@@ -15,7 +15,6 @@
       --accent: #1f4e79;
       --inbound: #8a5a2b;
     }
-
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
@@ -24,266 +23,120 @@
       color: var(--ink);
       line-height: 1.55;
     }
-
-    main {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 48px 24px 80px;
-    }
-
+    main { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
     .kicker {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 12px;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 12px;
     }
-
-    h1 {
-      font-size: clamp(32px, 5vw, 44px);
-      line-height: 1.15;
-      font-weight: 600;
-      margin: 0 0 16px;
+    h1 { font-size: clamp(28px, 4.6vw, 40px); line-height: 1.15; font-weight: 600; margin: 0 0 16px; }
+    .lede { font-size: 20px; color: var(--muted); margin: 0 0 28px; }
+    .picker { position: relative; margin: 0 0 28px; }
+    .picker label {
+      display: block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
     }
-
-    .lede {
-      font-size: 20px;
-      color: var(--muted);
-      margin: 0 0 36px;
+    #q {
+      width: 100%; font: 16px ui-sans-serif, system-ui, sans-serif;
+      padding: 10px 12px; border: 1px solid var(--line); background: var(--paper);
+      color: var(--ink);
     }
-
-    .hero {
-      background: var(--paper);
-      border: 1px solid var(--line);
-      padding: 28px 28px 24px;
-      margin-bottom: 36px;
+    #q:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    #results {
+      position: absolute; z-index: 5; left: 0; right: 0;
+      max-height: 280px; overflow: auto;
+      margin: 0; padding: 0; list-style: none;
+      background: var(--paper); border: 1px solid var(--line); border-top: 0;
     }
-
+    #results button {
+      display: block; width: 100%; text-align: left;
+      font: 15px ui-sans-serif, system-ui, sans-serif;
+      padding: 8px 12px; border: 0; background: transparent; color: var(--ink); cursor: pointer;
+    }
+    #results button[aria-selected="true"], #results button:hover { background: #ebe6db; }
+    .hero { background: var(--paper); border: 1px solid var(--line); padding: 28px 28px 24px; margin-bottom: 36px; }
     .hero-number {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: clamp(64px, 12vw, 88px);
-      line-height: 0.95;
-      letter-spacing: -0.04em;
-      color: var(--accent);
-      margin: 0;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: clamp(64px, 12vw, 88px); line-height: 0.95; letter-spacing: -0.04em;
+      color: var(--accent); margin: 0;
     }
-
-    .hero-label {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 15px;
-      color: var(--muted);
-      margin: 10px 0 0;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .stat {
-      border-top: 1px solid var(--line);
-      padding-top: 10px;
-    }
-
-    .stat b {
-      display: block;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 20px;
-      font-weight: 650;
-    }
-
-    .stat span {
-      display: block;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    h2 {
-      font-size: 24px;
-      margin: 40px 0 12px;
-    }
-
+    .hero-label { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 15px; color: var(--muted); margin: 10px 0 0; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .stat { border-top: 1px solid var(--line); padding-top: 10px; }
+    .stat b { display: block; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 650; }
+    .stat span { display: block; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: var(--muted); }
+    h2 { font-size: 24px; margin: 40px 0 12px; }
     p { margin: 0 0 16px; }
-
-    .bar-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin: 20px 0 8px;
-    }
-
+    .bar-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 8px; }
     .bar-row {
-      display: grid;
-      grid-template-columns: 180px 1fr 56px;
-      gap: 12px;
-      align-items: center;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 13px;
+      display: grid; grid-template-columns: minmax(120px, 220px) 1fr 56px;
+      gap: 12px; align-items: center;
+      font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px;
     }
-
-    .track {
-      background: #e8e2d6;
-      height: 10px;
-    }
-
+    .bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-row.selected .name { font-weight: 700; }
+    .track { background: #e8e2d6; height: 10px; }
     .fill { height: 10px; background: var(--accent); }
     .fill.inbound { background: var(--inbound); }
     .fill.muted { background: #7a756c; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 14px;
-      margin: 16px 0 8px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
+    table { width: 100%; border-collapse: collapse; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 16px 0 8px; }
+    th, td { text-align: left; padding: 8px 0; border-bottom: 1px solid var(--line); }
     th:last-child, td:last-child { text-align: right; }
     th { color: var(--muted); font-weight: 550; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
     .indent { padding-left: 18px; color: var(--muted); }
-
-    .note {
-      font-size: 15px;
-      color: var(--muted);
-    }
-
+    .note { font-size: 15px; color: var(--muted); }
     footer {
-      margin-top: 48px;
-      padding-top: 16px;
-      border-top: 1px solid var(--line);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-      font-size: 13px;
-      color: var(--muted);
+      margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
+      font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: var(--muted);
     }
-
     @media (max-width: 640px) {
       .stats { grid-template-columns: 1fr; }
       .bar-row { grid-template-columns: 1fr 48px; }
-      .bar-row span:first-child { grid-column: 1 / -1; }
+      .bar-row .name { grid-column: 1 / -1; white-space: normal; }
     }
   </style>
 </head>
 <body>
   <main>
-    <p class="kicker">Pittsburgh MSA · ACS 2024</p>
-    <h1>Most people moving to a Pittsburgh-area address already lived here.</h1>
-    <p class="lede">
-      Of residents who changed homes last year and now live in the Pittsburgh metro,
-      69.7% already lived somewhere in that same metro.
-    </p>
+    <p class="kicker">U.S. metros · ACS 2024</p>
+    <h1 id="headline">Who is moving into this metro?</h1>
+    <p class="lede" id="lede">Choose a metropolitan area to see whether last year’s movers already lived there, or came from outside.</p>
+
+    <div class="picker">
+      <label for="q">Metropolitan area</label>
+      <input id="q" type="search" placeholder="Search metros — Pittsburgh, Austin, Buffalo…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list" />
+      <ul id="results" role="listbox" hidden></ul>
+    </div>
 
     <section class="hero">
-      <p class="hero-number">69.7%</p>
-      <p class="hero-label">Share of movers whose previous home was also in the Pittsburgh MSA &nbsp;±2.4 pp</p>
+      <p class="hero-number" id="share">—</p>
+      <p class="hero-label" id="shareLabel">Share of movers whose previous home was also in this metro</p>
       <div class="stats">
-        <div class="stat">
-          <b>163,017</b>
-          <span>Moved within the MSA</span>
-        </div>
-        <div class="stat">
-          <b>70,737</b>
-          <span>Moved in from outside</span>
-        </div>
-        <div class="stat">
-          <b>233,754</b>
-          <span>All movers, age 1+</span>
-        </div>
+        <div class="stat"><b id="intraN">—</b><span>Moved within the MSA</span></div>
+        <div class="stat"><b id="inN">—</b><span>Moved in from outside</span></div>
+        <div class="stat"><b id="allN">—</b><span>All movers, age 1+</span></div>
       </div>
     </section>
 
+    <p class="note" id="rank"></p>
+
     <h2>Where they lived one year ago</h2>
-    <p>
-      Anyone whose new address is in the Pittsburgh MSA counts, including someone
-      who only changed apartments in Allegheny County. People who stayed in the
-      same house are left out.
-    </p>
-
-    <div class="bar-list">
-      <div class="bar-row">
-        <span>Same Pittsburgh MSA</span>
-        <div class="track"><div class="fill" style="width:69.7%"></div></div>
-        <span>69.7%</span>
-      </div>
-      <div class="bar-row">
-        <span>Different U.S. metro</span>
-        <div class="track"><div class="fill inbound" style="width:21.4%"></div></div>
-        <span>21.4%</span>
-      </div>
-      <div class="bar-row">
-        <span>Abroad</span>
-        <div class="track"><div class="fill muted" style="width:4.8%"></div></div>
-        <span>4.8%</span>
-      </div>
-      <div class="bar-row">
-        <span>Micropolitan area</span>
-        <div class="track"><div class="fill muted" style="width:2.9%"></div></div>
-        <span>2.9%</span>
-      </div>
-      <div class="bar-row">
-        <span>Outside any CBSA</span>
-        <div class="track"><div class="fill muted" style="width:1.1%"></div></div>
-        <span>1.1%</span>
-      </div>
-    </div>
-
+    <p id="originIntro"></p>
+    <div class="bar-list" id="originBars"></div>
     <table>
-      <thead>
-        <tr>
-          <th>Origin one year ago</th>
-          <th>People</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Same Pittsburgh MSA</td><td>163,017</td></tr>
-        <tr><td class="indent">City of Pittsburgh</td><td>34,869</td></tr>
-        <tr><td class="indent">Rest of the MSA</td><td>128,148</td></tr>
-        <tr><td>Different U.S. metro</td><td>50,096</td></tr>
-        <tr><td>Micropolitan area</td><td>6,804</td></tr>
-        <tr><td>Not in a metro or micro</td><td>2,560</td></tr>
-        <tr><td>Abroad</td><td>11,277</td></tr>
-      </tbody>
+      <thead><tr><th>Origin one year ago</th><th>People</th></tr></thead>
+      <tbody id="originTable"></tbody>
     </table>
 
-    <h2>Compared with peer metros</h2>
-    <p>
-      Older Midwestern and Mid-Atlantic metros cluster in the high 60s to low 70s.
-      Pittsburgh sits with Buffalo, Milwaukee, and Philadelphia. Faster-growing
-      Columbus and Indianapolis draw a larger outside share.
-    </p>
-
-    <div class="bar-list">
-      <div class="bar-row"><span>St. Louis</span><div class="track"><div class="fill" style="width:74.2%"></div></div><span>74.2%</span></div>
-      <div class="bar-row"><span>Detroit</span><div class="track"><div class="fill" style="width:73.5%"></div></div><span>73.5%</span></div>
-      <div class="bar-row"><span>Milwaukee</span><div class="track"><div class="fill" style="width:70.2%"></div></div><span>70.2%</span></div>
-      <div class="bar-row"><span>Pittsburgh</span><div class="track"><div class="fill" style="width:69.7%"></div></div><span>69.7%</span></div>
-      <div class="bar-row"><span>Buffalo</span><div class="track"><div class="fill" style="width:69.6%"></div></div><span>69.6%</span></div>
-      <div class="bar-row"><span>Philadelphia</span><div class="track"><div class="fill" style="width:68.7%"></div></div><span>68.7%</span></div>
-      <div class="bar-row"><span>Youngstown</span><div class="track"><div class="fill" style="width:68.5%"></div></div><span>68.5%</span></div>
-      <div class="bar-row"><span>Columbus</span><div class="track"><div class="fill" style="width:67.7%"></div></div><span>67.7%</span></div>
-      <div class="bar-row"><span>Cincinnati</span><div class="track"><div class="fill" style="width:67.5%"></div></div><span>67.5%</span></div>
-      <div class="bar-row"><span>Baltimore</span><div class="track"><div class="fill" style="width:65.7%"></div></div><span>65.7%</span></div>
-      <div class="bar-row"><span>Indianapolis</span><div class="track"><div class="fill" style="width:65.5%"></div></div><span>65.5%</span></div>
-      <div class="bar-row"><span>Akron</span><div class="track"><div class="fill" style="width:58.3%"></div></div><span>58.3%</span></div>
-    </div>
-    <p class="note">Share of each metro’s movers whose previous home was in that same metro.</p>
+    <h2>Compared with similar-size metros</h2>
+    <p id="peerIntro"></p>
+    <div class="bar-list" id="peerBars"></div>
+    <p class="note">Share of each metro’s movers whose previous home was in that same metro. Peers are the 11 metros closest in population to the one you selected.</p>
 
     <h2>How to read this</h2>
-    <p>
-      If 100 people now live in the Pittsburgh MSA and moved in the last year,
-      about 70 already lived in Allegheny, Armstrong, Beaver, Butler, Fayette,
-      Lawrence, Washington, or Westmoreland County. Most of those 70 came from
-      the suburbs and outlying counties, not from the City of Pittsburgh.
-    </p>
+    <p id="readThis"></p>
     <p>
       This is not return migration. The ACS only asks where you lived one year
       ago. Someone who grew up here, spent a decade elsewhere, and moved back
@@ -292,9 +145,248 @@
 
     <footer>
       U.S. Census Bureau, American Community Survey 2024 1-year estimates,
-      table B07201. Geography: Pittsburgh, PA Metro Area (CBSA 38300).
-      Margin of error is the ACS 90% confidence interval.
+      table B07201. Puerto Rico metros are omitted; that table covers the 50
+      states and D.C. Margin of error is the ACS 90% confidence interval.
     </footer>
   </main>
+  <script>window.MSA_ROWS=[["10180","Abilene, TX",179639,14371,2705,12581,1790,7935,1424,1153,443,405,24883,3316,25326,10955,56.7],["10420","Akron, OH",695355,48213,5347,19305,28908,27131,3200,439,3756,1724,78983,5886,82739,34526,58.3],["10500","Albany, GA",144110,10036,3028,5261,4775,4126,1366,39,828,741,15567,3650,16395,6359,61.2],["10540","Albany, OR",130646,6272,1625,2374,3898,5825,7,985,248,238,13089,2704,13337,7065,47.0],["10580","Albany-Schenectady-Troy, NY",902956,56085,5215,20117,35968,28350,1908,1442,4395,1466,87785,6074,92180,36095,60.8],["10740","Albuquerque, NM",922226,77614,8176,56362,21252,24024,3197,2571,5344,3212,107406,8497,112750,35136,68.8],["10780","Alexandria, LA",145746,7346,1745,2703,4643,2453,221,1123,272,427,11143,2287,11415,4069,64.4],["10900","Allentown-Bethlehem-Easton, PA-NJ",877276,42870,5709,16593,26277,23645,2575,733,4682,2561,69823,6234,74505,31635,57.5],["11020","Altoona, PA",119676,6587,1624,2722,3865,2708,167,176,71,26,9638,1831,9709,3122,67.8],["11100","Amarillo, TX",275443,28970,7092,26378,2592,14239,3680,2176,701,493,49065,7594,49766,20796,58.2],["11180","Ames, IA",127793,11762,2405,8653,3109,9916,1125,1383,2825,1239,24186,3135,27011,15249,43.5],["11200","Amherst Town-Northampton, MA",164751,9724,2534,7635,2089,12532,498,68,2213,690,22822,2896,25035,15311,38.8],["11260","Anchorage, AK",402013,37716,5728,28875,8841,13638,1170,4840,2343,1422,57364,7011,59707,21991,63.2],["11460","Ann Arbor, MI",371315,36256,4122,21659,14597,29438,2169,729,6354,2054,68592,5066,74946,38690,48.4],["11500","Anniston-Oxford, AL",115937,5876,1537,1987,3889,4221,3598,888,318,279,14583,2589,14901,9025,39.4],["11540","Appleton, WI",246503,9277,2050,3506,5771,11518,1688,276,450,358,22759,3738,23209,13932,40.0],["11700","Asheville, NC",418742,18003,3944,6396,11607,17157,1547,1220,2222,1671,37927,4409,40149,22146,44.8],["12020","Athens-Clarke County, GA",220087,23978,4613,16416,7562,14857,1390,291,2323,1906,40516,5024,42839,18861,56.0],["12060","Atlanta-Sandy Springs-Roswell, GA",6336896,564182,23244,107845,456337,179873,15318,12912,61350,9052,772285,24654,833635,269453,67.7],["12100","Atlantic City-Hammonton, NJ",369799,15696,4084,1348,14348,12590,108,0,2946,1589,28394,5126,31340,15644,50.1],["12220","Auburn-Opelika, AL",203896,10769,2805,8980,1789,9388,623,664,1968,1405,21444,3622,23412,12643,46.0],["12260","Augusta-Richmond County, GA-SC",630307,48825,7279,21710,27115,26595,2266,4819,1789,1232,82505,9281,84294,35469,57.9],["12420","Austin-Round Rock-San Marcos, TX",2526404,275586,18003,185214,90372,113103,7315,5032,31556,7179,401036,20128,432592,157006,63.7],["12540","Bakersfield-Delano, CA",912276,54950,7482,35313,19637,21652,400,483,3664,1342,77485,8423,81149,26199,67.7],["12580","Baltimore-Columbia-Towson, MD",2828889,202703,15133,69400,133303,86143,3193,3931,12438,2783,295970,18359,308408,105705,65.7],["12620","Bangor, ME",155546,9884,2831,4463,5421,6481,459,1691,343,306,18515,4031,18858,8974,52.4],["12700","Barnstable Town, MA",231865,5294,1899,1292,4002,10302,71,81,791,547,15748,2910,16539,11245,32.0],["12940","Baton Rouge, LA",873525,74763,9963,28247,46516,29805,1643,1247,5072,2692,107458,10649,112530,37767,66.4],["12980","Battle Creek, MI",132069,8309,2227,2808,5501,5625,749,30,422,297,14713,2915,15135,6826,54.9],["13020","Bay City, MI",102167,5716,1940,2283,3433,2754,68,1433,109,85,9971,2201,10080,4364,56.7],["13140","Beaumont-Port Arthur, TX",394147,24167,4859,13807,10360,11068,1412,3342,1847,1033,39989,6054,41836,17669,57.8],["13220","Beckley, WV",109870,5019,1459,1334,3685,2965,1317,1875,0,206,11176,2457,11176,6157,44.9],["13380","Bellingham, WA",233455,19296,3388,12782,6514,11249,2198,913,1191,942,33656,3693,34847,15551,55.4],["13460","Bend, OR",262286,18120,3838,11365,6755,11928,3751,262,870,540,34061,4679,34931,16811,51.9],["13740","Billings, MT",190301,8348,2056,6884,1464,8671,967,801,520,408,18787,2724,19307,10959,43.2],["13780","Binghamton, NY",241293,15852,3030,5794,10058,5464,843,973,2057,1312,23132,3354,25189,9337,62.9],["13820","Birmingham, AL",1179312,87734,7564,21254,66480,28539,5013,1690,7825,3922,122976,9091,130801,43067,67.1],["13900","Bismarck, ND",137496,9654,2713,4147,5507,4508,818,1884,963,977,16864,3409,17827,8173,54.2],["13980","Blacksburg-Christiansburg-Radford, VA",182073,10430,2178,6426,4004,14213,389,1043,1356,719,26075,3124,27431,17001,38.0],["14010","Bloomington, IL",170693,11712,2280,6125,5587,11246,1280,370,1132,715,24608,2988,25740,14028,45.5],["14020","Bloomington, IN",161595,14413,2702,10370,4043,14532,3106,585,2585,1258,32636,3672,35221,20808,40.9],["14260","Boise City, ID",835912,80178,7545,29526,50652,29870,7137,2979,2143,881,120164,8215,122307,42129,65.6],["14460","Boston-Cambridge-Newton, MA-NH",4976501,368767,16978,110497,258270,131093,8786,1701,52363,6478,510347,17012,562710,193943,65.5],["14500","Boulder, CO",328213,26213,4147,14478,11735,29704,1233,181,2779,1141,57331,5078,60110,33897,43.6],["14540","Bowling Green, KY",195394,12297,2891,6380,5917,8508,1563,2297,1766,1331,24665,3757,26431,14134,46.5],["14580","Bozeman, MT",125636,12243,2606,9600,2643,7124,422,2573,611,531,22362,2882,22973,10730,53.3],["14740","Bremerton-Silverdale-Port Orchard, WA",278417,18506,4469,8156,10350,16338,3240,4,2361,1541,38088,5673,40449,21943,45.8],["14860","Bridgeport-Stamford-Danbury, CT",962033,52924,6851,26477,26447,30232,772,237,11609,3417,84165,7541,95774,42850,55.3],["15180","Brownsville-Harlingen, TX",427643,22521,6141,15324,7197,8465,1089,230,1756,1219,32305,6175,34061,11540,66.1],["15260","Brunswick-St. Simons, GA",115081,3642,1493,1052,2590,4219,483,144,92,157,8488,2378,8580,4938,42.4],["15380","Buffalo-Cheektowaga, NY",1151037,76354,7879,24977,51377,21973,2674,1768,6892,2954,102769,8122,109661,33307,69.6],["15500","Burlington, NC",180665,12446,4125,6400,6046,8391,309,60,1983,1539,21206,4199,23189,10743,53.7],["15540","Burlington-South Burlington, VT",228400,23553,5142,9595,13958,11195,2192,1090,472,378,38030,5808,38502,14949,61.2],["15940","Canton-Massillon, OH",397105,26959,4614,10826,16133,8796,2625,593,168,197,38973,4924,39141,12182,68.9],["15980","Cape Coral-Fort Myers, FL",853634,45357,6411,19215,26142,51869,3482,768,15396,3577,101476,8462,116872,71515,38.8],["16020","Cape Girardeau, MO-IL",100164,7040,2828,4021,3019,1771,1185,461,675,459,10457,2918,11132,4092,63.2],["16180","Carson City, NV",57796,3083,1397,3083,0,2062,755,7,848,894,5907,1504,6755,3672,45.6],["16220","Casper, WY",80066,3590,1368,3310,280,2409,1735,335,41,68,8069,1768,8110,4520,44.3],["16300","Cedar Rapids, IA",274557,18145,2969,9137,9008,8171,685,2199,960,1201,29200,3897,30160,12015,60.2],["16540","Chambersburg, PA",158357,7294,3210,3121,4173,5913,524,71,337,325,13802,3598,14139,6845,51.6],["16580","Champaign-Urbana, IL",240315,17768,3691,13029,4739,12316,1242,1062,3407,1889,32388,4092,35795,18027,49.6],["16620","Charleston, WV",198961,7653,2517,2231,5422,5997,195,1070,236,294,14915,2877,15151,7498,50.5],["16700","Charleston-North Charleston, SC",859544,63109,7826,27558,35551,42712,4001,1125,7043,2317,110947,9372,117990,54881,53.5],["16740","Charlotte-Concord-Gastonia, NC-SC",2847329,198715,12094,125905,72810,103861,9777,3727,27503,5011,316080,15370,343583,144868,57.8],["16820","Charlottesville, VA",223353,14945,2913,6907,8038,15512,2216,1180,3487,1562,33853,4761,37340,22395,40.0],["16860","Chattanooga, TN-GA",581771,44015,6953,22393,21622,23547,3549,937,3920,2316,72048,7397,75968,31953,57.9],["16940","Cheyenne, WY",100405,6816,1755,5030,1786,6727,773,124,295,393,14440,3046,14735,7919,46.3],["16980","Chicago-Naperville-Elgin, IL-IN",9319133,692747,28775,326954,365793,151249,13502,3021,85299,11374,860519,31770,945818,253071,73.2],["17020","Chico, CA",206024,16857,2963,9561,7296,11498,768,546,2710,2414,29669,4097,32379,15522,52.1],["17140","Cincinnati, OH-KY-IN",2280823,187481,13873,46473,141008,66650,7936,5646,9905,3216,267713,14395,277618,90137,67.5],["17300","Clarksville, TN-KY",338876,27276,5723,16090,11186,21012,2339,2575,3335,2234,53202,6556,56537,29261,48.2],["17410","Cleveland, OH",2150698,168334,10407,42288,126046,51878,3994,1945,8517,2415,226151,10268,234668,66334,71.7],["17420","Cleveland, TN",130657,10093,2839,6226,3867,3779,940,642,751,708,15454,3286,16205,6112,62.3],["17660","Coeur d'Alene, ID",186307,13198,3077,5389,7809,7440,1982,273,418,315,22893,4165,23311,10113,56.6],["17780","College Station-Bryan, TX",285650,31383,4578,26587,4796,26275,1587,2726,2267,983,61971,5194,64238,32855,48.9],["17820","Colorado Springs, CO",767145,65348,7428,52070,13278,51889,6925,2516,7245,3655,126678,9849,133923,68575,48.8],["17860","Columbia, MO",215096,21426,4184,15418,6008,11563,1799,658,1650,1004,35446,4638,37096,15670,57.8],["17900","Columbia, SC",864311,69063,8483,25970,43093,34165,3350,811,5659,2502,107389,8780,113048,43985,61.1],["17980","Columbus, GA-AL",325038,20274,5342,13897,6377,25196,1285,1730,1297,733,48485,7494,49782,29508,40.7],["18020","Columbus, IN",83889,4641,1564,3277,1364,2692,448,461,1518,1385,8242,1855,9760,5119,47.6],["18140","Columbus, OH",2201744,204745,14716,122376,82369,63723,13156,3565,17203,4029,285189,15609,302392,97647,67.7],["18580","Corpus Christi, TX",443992,44330,8192,33672,10658,12277,1049,314,1960,1460,57970,8845,59930,15600,74.0],["18700","Corvallis, OR",98520,9958,2443,9271,687,11040,526,246,1088,563,21770,3088,22858,12900,43.6],["18880","Crestview-Fort Walton Beach-Destin, FL",306229,23736,4536,7799,15937,22324,3044,776,4177,1630,49880,5971,54057,30321,43.9],["19100","Dallas-Fort Worth-Arlington, TX",8256829,785043,33622,428184,356859,236095,18799,12247,91334,9160,1052184,37114,1143518,358475,68.7],["19140","Dalton, GA",145503,13157,3888,1972,11185,2353,1872,102,1267,987,17484,4343,18751,5594,70.2],["19300","Daphne-Fairhope-Foley, AL",259488,12000,3455,4614,7386,11555,2055,562,76,11,26172,4955,26248,14248,45.7],["19340","Davenport-Moline-Rock Island, IA-IL",378135,31391,5238,18464,12927,8154,3219,294,1197,549,43058,5975,44255,12864,70.9],["19430","Dayton-Kettering-Beavercreek, OH",812168,68203,8226,22653,45550,24141,5512,1536,5459,1881,99392,8908,104851,36648,65.0],["19460","Decatur, AL",158011,8250,2125,3047,5203,4920,987,400,179,178,14557,2816,14736,6486,56.0],["19500","Decatur, IL",99404,6095,1932,5359,736,1875,550,40,23,40,8560,2068,8583,2488,71.0],["19660","Deltona-Daytona Beach-Ormond Beach, FL",731515,42582,6658,20676,21906,40536,2240,1199,2828,1269,86557,8815,89385,46803,47.6],["19740","Denver-Aurora-Centennial, CO",3014117,297211,15726,164468,132743,99180,7841,3721,22925,5704,407953,16659,430878,133667,69.0],["19780","Des Moines-West Des Moines, IA",744707,57992,6184,30768,27224,24458,3474,3174,2597,1461,89098,8219,91695,33703,63.2],["19820","Detroit-Warren-Dearborn, MI",4355933,317033,19520,122420,194613,71762,6516,3097,32869,6160,398408,18350,431277,114244,73.5],["20020","Dothan, AL",153770,6860,1864,3504,3356,2876,1052,324,446,437,11112,2263,11558,4698,59.4],["20100","Dover, DE",190742,9535,3527,3529,6006,4366,683,332,928,1264,14916,3943,15844,6309,60.2],["20220","Dubuque, IA",98377,4672,1171,3592,1080,2846,522,1303,78,141,9343,1975,9421,4749,49.6],["20260","Duluth, MN-WI",279497,23592,3577,11380,12212,11678,2520,2314,347,202,40104,4433,40451,16859,58.3],["20500","Durham-Chapel Hill, NC",612233,37143,5178,26790,10353,39874,1732,3021,6542,2762,81770,7279,88312,51169,42.1],["20580","Eagle Pass, TX",56868,2838,950,1800,1038,1675,239,566,266,167,5318,1235,5584,2746,50.8],["20740","Eau Claire, WI",174561,11877,2482,6714,5163,7369,2472,1976,1528,854,23694,3499,25222,13345,47.1],["20940","El Centro, CA",179345,9456,3431,5089,4367,3894,594,0,1201,698,13944,3495,15145,5689,62.4],["21340","El Paso, TX",867305,53309,6525,43783,9526,28695,2421,399,7431,2680,84824,9033,92255,38946,57.8],["21060","Elizabethtown, KY",126936,12530,3886,4335,8195,5770,258,199,357,383,18757,4104,19114,6584,65.6],["21140","Elkhart-Goshen, IN",205216,14018,3483,6534,7484,6254,462,422,311,271,21156,3738,21467,7449,65.3],["21300","Elmira, NY",80584,4102,1151,1658,2444,1811,1257,323,68,83,7493,1501,7561,3459,54.3],["21420","Enid, OK",60935,3786,1323,2897,889,2666,1356,346,140,247,8154,2058,8294,4508,45.6],["21500","Erie, PA",265199,16016,2614,7070,8946,7770,1537,468,2302,1127,25791,3565,28093,12077,57.0],["21660","Eugene-Springfield, OR",379817,34884,5057,29797,5087,20699,2623,133,3400,2246,58339,6094,61739,26855,56.5],["21780","Evansville, IN",268594,21282,4175,11660,9622,5692,1761,1077,2366,1891,29812,4106,32178,10896,66.1],["21820","Fairbanks-College, AK",93187,6617,2582,4157,2460,6210,336,2496,1085,715,15659,3192,16744,10127,39.5],["22020","Fargo, ND-MN",265572,24568,5010,16896,7672,8073,1808,1436,2556,2063,35885,5266,38441,13873,63.9],["22140","Farmington, NM",119363,6246,2520,2858,3388,2563,1125,90,278,378,10024,2993,10302,4056,60.6],["22180","Fayetteville, NC",388701,29787,4691,21113,8674,23979,6081,1350,3231,1102,61197,5926,64428,34641,46.2],["22220","Fayetteville-Springdale-Rogers, AR",598971,49027,6252,34433,14594,17355,2218,2065,3547,1719,70665,7086,74212,25185,66.1],["22380","Flagstaff, AZ",144113,7783,1713,6300,1483,14605,1293,547,1041,768,24228,2781,25269,17486,30.8],["22420","Flint, MI",397621,34924,6176,11095,23829,10625,2456,1364,469,425,49369,6701,49838,14914,70.1],["22500","Florence, SC",197794,8345,2442,3940,4405,5962,1234,917,112,133,16458,3485,16570,8225,50.4],["22520","Florence-Muscle Shoals, AL",155282,10718,3238,3989,6729,7214,1632,926,418,454,20490,4410,20908,10190,51.3],["22540","Fond du Lac, WI",103358,3463,1138,2038,1425,1885,455,338,51,76,6141,1433,6192,2729,55.9],["22660","Fort Collins-Loveland, CO",372323,27029,3726,23298,3731,20845,911,464,2117,872,49249,4804,51366,24337,52.6],["22900","Fort Smith, AR-OK",229995,22757,3856,12190,10567,6628,866,1767,223,232,32018,4151,32241,9484,70.6],["23060","Fort Wayne, IN",457590,38935,5212,29238,9697,8509,4864,701,1654,969,53009,6421,54663,15728,71.2],["23420","Fresno, CA",1175945,100288,10666,57497,42791,28617,689,291,6693,2054,129885,11120,136578,36290,73.4],["23460","Gadsden, AL",101863,4015,1917,1680,2335,2566,574,748,109,117,7903,2421,8012,3997,50.1],["23540","Gainesville, FL",357943,28570,4478,16725,11845,36115,5914,1293,4101,2119,71892,7685,75993,47423,37.6],["23580","Gainesville, GA",219399,10444,2806,4531,5913,10472,708,386,1442,1091,22010,3590,23452,13008,44.5],["23900","Gettysburg, PA",106927,4446,1462,2038,2408,4256,326,27,458,287,9055,1740,9513,5067,46.7],["24020","Glens Falls, NY",123859,5746,1388,1148,4598,6116,379,647,903,460,12888,2223,13791,8045,41.7],["24140","Goldsboro, NC",118958,9571,2768,3987,5584,5082,1443,489,2427,1460,16585,3296,19012,9441,50.3],["24220","Grand Forks, ND-MN",102882,8929,1993,7136,1793,5954,644,1959,1007,779,17486,2236,18493,9564,48.3],["24260","Grand Island, NE",76174,6490,2902,5676,814,1236,595,179,1504,1022,8500,2837,10004,3514,64.9],["24300","Grand Junction, CO",160567,13333,2916,8743,4590,4409,1626,1633,73,63,21001,3293,21074,7741,63.3],["24340","Grand Rapids-Wyoming-Kentwood, MI",1166519,83447,10032,34358,49089,30318,6443,2386,5753,2015,122594,10117,128347,44900,65.0],["24420","Grants Pass, OR",87964,4881,1785,3759,1122,3633,604,764,45,77,9882,2262,9927,5046,49.2],["24500","Great Falls, MT",83343,4613,1047,3881,732,3004,71,895,1105,1020,8583,1470,9688,5075,47.6],["24540","Greeley, CO",365536,16242,3895,9136,7106,25297,1104,1027,539,451,43670,5421,44209,27967,36.7],["24580","Green Bay, WI",330419,21397,3110,10841,10556,7339,3790,880,2011,1301,33406,3841,35417,14020,60.4],["24660","Greensboro-High Point, NC",793348,53380,6587,36914,16466,42070,2589,910,6504,2646,98949,10196,105453,52073,50.6],["24780","Greenville, NC",178950,13852,3271,10237,3615,12002,1979,927,2725,1856,28760,3915,31485,17633,44.0],["24860","Greenville-Anderson-Greer, SC",986328,72076,8518,23459,48617,49445,7605,374,4398,2282,129500,10969,133898,61822,53.8],["25060","Gulfport-Biloxi, MS",422831,27016,4061,13621,13395,16935,2466,450,2446,1455,46867,5164,49313,22297,54.8],["25180","Hagerstown-Martinsburg, MD-WV",309086,17500,4897,6508,10992,17137,1697,505,441,555,36839,6330,37280,19780,46.9],["25220","Hammond, LA",137562,6752,2693,1371,5381,7708,1585,58,380,483,16103,4278,16483,9731,41.0],["25260","Hanford-Corcoran, CA",152821,5096,1816,2679,2417,10127,461,152,571,425,15836,3595,16407,11311,31.1],["25420","Harrisburg-Carlisle, PA",608625,37642,5350,8407,29235,26265,2679,571,4934,1988,67157,6006,72091,34449,52.2],["25500","Harrisonburg, VA",137439,7252,1918,4393,2859,10325,247,1583,714,709,19407,3270,20121,12869,36.0],["25540","Hartford-West Hartford-East Hartford, CT",1158277,71493,8635,23693,47800,39047,2883,1040,8198,1669,114463,9396,122661,51168,58.3],["25620","Hattiesburg, MS",155244,9073,2905,2760,6313,3564,1286,601,1565,571,14524,3650,16089,7016,56.4],["25740","Helena, MT",95961,3717,1371,1573,2144,4954,448,600,4,5,9719,2438,9723,6006,38.2],["25860","Hickory-Lenoir-Morganton, NC",370023,15917,3118,4906,11011,11036,1771,1140,649,457,29864,4043,30513,14596,52.2],["25940","Hilton Head Island-Bluffton-Port Royal, SC",234750,9868,3274,6300,3568,22282,513,851,833,596,33514,6217,34347,24479,28.7],["25980","Hinesville, GA",88451,3305,1924,790,2515,8852,659,426,400,402,13242,3692,13642,10337,24.2],["26140","Homosassa Springs, FL",169262,7901,2297,383,7518,10336,351,331,82,141,18919,4073,19001,11100,41.6],["26300","Hot Springs, AR",99317,6614,3371,3899,2715,2436,568,186,0,213,9804,3541,9804,3190,67.5],["26380","Houma-Bayou Cane-Thibodaux, LA",197121,9108,2386,2266,6842,2905,316,0,471,383,12329,2746,12800,3692,71.2],["26420","Houston-Pasadena-The Woodlands, TX",7700640,715191,33509,403995,311196,169588,15395,10025,111847,14288,910199,37109,1022046,306855,70.0],["26580","Huntington-Ashland, WV-KY-OH",362881,20850,4324,5186,15664,9304,1575,3845,658,523,35574,5346,36232,15382,57.5],["26620","Huntsville, AL",536842,40394,6651,22962,17432,23038,3686,3611,3434,2036,70729,8397,74163,33769,54.5],["26820","Idaho Falls, ID",168447,6270,1711,4139,2131,4734,2864,345,359,255,14213,2743,14572,8302,43.0],["26900","Indianapolis-Carmel-Greenwood, IN",2147686,171466,11347,105730,65736,64373,8167,3464,14144,4030,247470,12200,261614,90148,65.5],["26980","Iowa City, IA",181256,16348,3716,10653,5695,13704,1679,1718,725,395,33449,4287,34174,17826,47.8],["27060","Ithaca, NY",105138,11544,2443,6964,4580,11863,1678,212,2199,966,25297,3261,27496,15952,42.0],["27100","Jackson, MI",158527,6652,1755,1217,5435,4484,1342,406,143,141,12884,1821,13027,6375,51.1],["27140","Jackson, MS",597393,46123,7716,16816,29307,10677,5429,2864,5628,2572,65093,8426,70721,24598,65.2],["27180","Jackson, TN",183046,16277,4003,10062,6215,5399,1367,1223,250,191,24266,4003,24516,8239,66.4],["27260","Jacksonville, FL",1747922,156118,14896,107060,49058,82109,4029,1119,15160,5148,243375,17827,258535,102417,60.4],["27340","Jacksonville, NC",210008,14081,3688,6819,7262,21968,3652,541,1823,979,40242,5630,42065,27984,33.5],["27500","Janesville-Beloit, WI",162922,8308,1938,6555,1753,6414,683,565,679,657,15970,3102,16649,8341,49.9],["27620","Jefferson City, MO",151733,10409,2440,2275,8134,6012,886,2031,851,601,19338,2964,20189,9780,51.6],["27740","Johnson City, TN",213782,14437,2968,7570,6867,8059,1602,781,349,315,24879,3294,25228,10791,57.2],["27780","Johnstown, PA",129333,7019,1390,1479,5540,1300,786,38,0,192,9143,1622,9143,2124,76.8],["27860","Jonesboro, AR",136655,11269,4014,8650,2619,3864,2427,1822,1273,1180,19382,4452,20655,9386,54.6],["27900","Joplin, MO-KS",205373,18248,3778,5348,12900,5195,1238,2528,436,276,27209,4381,27645,9397,66.0],["27980","Kahului-Wailuku, HI",162682,11890,3047,3033,8857,3595,404,0,81,87,15889,3163,15970,4080,74.5],["28020","Kalamazoo-Portage, MI",263345,16982,4242,12541,4441,12241,2524,1090,1757,759,32837,5276,34594,17612,49.1],["28100","Kankakee, IL",105057,5201,1712,699,4502,2864,139,177,618,365,8381,2185,8999,3798,57.8],["28140","Kansas City, MO-KS",2230678,187773,11641,93403,94370,56578,5472,5812,12171,3238,255635,13132,267806,80033,70.1],["28420","Kennewick-Richland, WA",315840,24879,5170,12437,12442,8574,1575,136,3488,1743,35164,5464,38652,13773,64.4],["28450","Kenosha, WI",166995,6718,2473,5382,1336,8686,849,55,137,147,16308,2834,16445,9727,40.9],["28660","Killeen-Temple, TX",502160,44290,6864,24722,19568,34741,3313,3243,4290,2006,85587,9264,89877,45587,49.3],["28700","Kingsport-Bristol, TN-VA",312282,20512,3452,6356,14156,7298,2057,4135,597,426,34002,4546,34599,14087,59.3],["28740","Kingston, NY",181287,6504,2171,2414,4090,7697,1350,0,687,587,15551,3125,16238,9734,40.1],["28880","Kiryas Joel-Poughkeepsie-Newburgh, NY",703140,35164,5074,7046,28118,25553,1706,1160,1822,675,63583,6620,65405,30241,53.8],["28940","Knoxville, TN",949097,64592,5676,25614,38978,24427,6202,1087,3503,2208,96308,6661,99811,35219,64.7],["29020","Kokomo, IN",82731,7039,2572,5072,1967,2720,637,86,57,100,10482,2854,10539,3500,66.8],["29100","La Crosse-Onalaska, WI-MN",169268,10656,1865,6448,4208,8604,3478,2154,65,54,24892,2778,24957,14301,42.7],["29180","Lafayette, LA",414244,25830,4722,11055,14775,6589,3222,1036,1937,1220,36677,5290,38614,12784,66.9],["29200","Lafayette-West Lafayette, IN",229681,21247,3171,15292,5955,17098,2530,1441,3808,1218,42316,4024,46124,24877,46.1],["29340","Lake Charles, LA",239967,15291,4099,7541,7750,6271,939,863,1141,931,23364,4697,24505,9214,62.4],["29420","Lake Havasu City-Kingman, AZ",224832,13582,4304,5097,8485,15148,707,655,577,354,30092,4568,30669,17087,44.3],["29460","Lakeland-Winter Haven, FL",845243,45627,8309,13984,31643,43097,993,869,7483,2192,90586,11162,98069,52442,46.5],["29540","Lancaster, PA",557928,32631,5111,5509,27122,21157,2214,0,2034,1024,56002,6041,58036,25405,56.2],["29620","Lansing-East Lansing, MI",476556,35315,4963,16993,18322,25467,3456,538,1479,824,64776,6145,66255,30940,53.3],["29700","Laredo, TX",268980,16293,4472,16282,11,2463,368,731,1308,1175,19855,4502,21163,4870,77.0],["29740","Las Cruces, NM",226703,14366,3928,8738,5628,7338,3536,141,1028,717,25381,4274,26409,12043,54.4],["29820","Las Vegas-Henderson-North Las Vegas, NV",2374810,205562,15272,137822,67740,97531,5946,2047,19079,3799,311086,18670,330165,124603,62.3],["29940","Lawrence, KS",121102,12466,2451,11979,487,8718,1733,665,2154,1243,23582,3275,25736,13270,48.4],["30020","Lawton, OK",125419,12500,1981,9155,3345,6768,1320,1667,1690,1047,22255,2447,23945,11445,52.2],["30140","Lebanon, PA",144052,8368,2631,3017,5351,3683,1095,0,11,21,13146,2881,13157,4789,63.6],["30300","Lewiston, ID-WA",65171,5133,1724,3710,1423,1162,1247,1284,0,213,8826,2102,8826,3693,58.2],["30340","Lewiston-Auburn, ME",113904,3757,1144,3208,549,4089,252,459,1932,1391,8557,1833,10489,6732,35.8],["30500","Lexington Park, MD",207874,6785,3108,1111,5674,9652,829,0,1823,1175,17266,4122,19089,12304,35.5],["30460","Lexington-Fayette, KY",526944,51194,6411,36060,15134,23653,5058,5413,4831,1494,85318,7360,90149,38955,56.8],["30620","Lima, OH",99731,6466,2486,3921,2545,2808,2363,1020,692,499,12657,3232,13349,6883,48.4],["30700","Lincoln, NE",347408,36137,4904,34722,1415,13375,3441,2438,1321,613,55391,5213,56712,20575,63.7],["30780","Little Rock-North Little Rock-Conway, AR",763436,68023,8593,35903,32120,13729,7138,3763,3296,1826,92653,9131,95949,27926,70.9],["30860","Logan, UT-ID",158000,14082,2931,9005,5077,11142,2736,452,1511,1130,28412,3953,29923,15841,47.1],["30980","Longview, TX",292142,14494,2718,5173,9321,9082,2021,2073,384,190,27670,3535,28054,13560,51.7],["31020","Longview-Kelso, WA",112329,6130,1836,3792,2338,4865,203,510,2256,1569,11708,2546,13964,7834,43.9],["31080","Los Angeles-Long Beach-Anaheim, CA",12810032,856092,24873,522905,333187,216981,5114,1763,105539,8683,1079950,25466,1185489,329397,72.2],["31140","Louisville/Jefferson County, KY-IN",1382212,109866,8780,66417,43449,27953,3414,7134,12198,3512,148367,9514,160565,50699,68.4],["31180","Lubbock, TX",362853,48756,5182,40644,8112,18258,2718,2302,3150,1787,72034,5232,75184,26428,64.8],["31340","Lynchburg, VA",264779,12502,2919,4277,8225,12818,1440,1969,811,392,28729,3754,29540,17038,42.3],["31420","Macon-Bibb County, GA",234674,19594,5100,17199,2395,6939,2676,402,1758,1136,29611,5923,31369,11775,62.5],["31540","Madison, WI",701916,65423,5989,41921,23502,32612,5481,1363,4756,1639,104879,6742,109635,44212,59.7],["31700","Manchester-Nashua, NH",426617,20452,4017,10981,9471,19876,4232,417,3788,2126,44977,5463,48765,28313,41.9],["31740","Manhattan, KS",134035,10390,2418,6759,3631,13007,1804,1122,1641,1175,26323,3364,27964,17574,37.2],["31860","Mankato, MN",104312,8497,2310,5772,2725,4047,1337,2157,536,319,16038,2873,16574,8077,51.3],["31900","Mansfield, OH",123795,5990,2096,3294,2696,3698,1312,216,123,134,11216,2632,11339,5349,52.8],["32580","McAllen-Edinburg-Mission, TX",902618,71061,9278,43194,27867,13476,2349,660,7904,3215,87546,9626,95450,24389,74.4],["32780","Medford, OR",219234,17117,3747,9163,7954,7562,1177,818,665,575,26674,4493,27339,10222,62.6],["32820","Memphis, TN-MS-AR",1321128,109462,9628,64327,45135,27284,4694,4339,4940,2023,145779,11018,150719,41257,72.6],["32900","Merced, CA",293985,15993,4715,6997,8996,11593,5,200,1879,1257,27791,5392,29670,13677,53.9],["33100","Miami-Fort Lauderdale-West Palm Beach, FL",6398281,499938,24333,183925,316013,141810,6692,2868,126650,10808,651308,27410,777958,278020,64.3],["33140","Michigan City-La Porte, IN",110590,4035,1574,2744,1291,3518,618,337,0,211,8508,2052,8508,4473,47.4],["33220","Midland, MI",83314,3360,1305,2018,1342,3957,123,523,95,89,7963,1769,8058,4698,41.7],["33260","Midland, TX",185723,9825,2960,7785,2040,15913,1947,324,3936,3323,28009,5413,31945,22120,30.8],["33340","Milwaukee-Waukesha, WI",1557769,116413,9937,69383,47030,38465,4520,2030,4419,1542,161428,10821,165847,49434,70.2],["33460","Minneapolis-St. Paul-Bloomington, MN-WI",3716132,310386,15665,146973,163413,64631,14849,8309,22220,4163,398175,17089,420395,110009,73.8],["33500","Minot, ND",74471,5971,2061,3345,2626,4059,247,1213,855,586,11490,2766,12345,6374,48.4],["33540","Missoula, MT",125695,14254,3121,11156,3098,6150,978,2029,426,309,23411,3611,23837,9583,59.8],["33660","Mobile, AL",405176,31563,4545,17125,14438,11828,358,344,1083,545,44093,4861,45176,13613,69.9],["33700","Modesto, CA",551325,31078,5899,11430,19648,12678,363,121,3119,1278,44240,6519,47359,16281,65.6],["33740","Monroe, LA",219650,10642,2797,2881,7761,7029,430,1006,879,824,19107,3610,19986,9344,53.2],["33780","Monroe, MI",154577,7566,2228,670,6896,5217,276,156,92,146,13215,2690,13307,5741,56.9],["33860","Montgomery, AL",380829,26736,6169,19060,7676,16710,2421,1425,1605,1030,47292,7347,48897,22161,54.7],["34060","Morgantown, WV",141370,12618,2799,4575,8043,9011,2274,1064,217,256,24967,3339,25184,12566,50.1],["34100","Morristown, TN",126015,4535,1659,970,3565,3304,3333,442,986,658,11614,3304,12600,8065,36.0],["34580","Mount Vernon-Anacortes, WA",131390,10502,3808,6395,4107,7037,727,178,148,115,18444,4011,18592,8090,56.5],["34620","Muncie, IN",111998,9670,2393,7755,1915,9064,1529,492,607,441,20755,2945,21362,11692,45.3],["34740","Muskegon-Norton Shores, MI",176234,10282,2937,5273,5009,8207,519,929,765,695,19937,3776,20702,10420,49.7],["34820","Myrtle Beach-Conway-North Myrtle Beach, SC",410071,21009,4069,6621,14388,23291,3014,2291,1429,1123,49605,6793,51034,30025,41.2],["34900","Napa, CA",131886,7498,2538,6124,1374,4684,142,0,681,364,12324,2711,13005,5507,57.7],["34940","Naples-Marco Island, FL",412379,30875,6905,4033,26842,13956,560,455,6408,2374,45846,7277,52254,21379,59.1],["34980","Nashville-Davidson--Murfreesboro--Franklin, TN",2127583,190508,13950,116913,73595,81091,9297,3764,18178,6047,284660,16748,302838,112330,62.9],["35300","New Haven, CT",571622,36710,5028,16154,20556,27699,1196,0,6463,2379,65605,7238,72068,35358,50.9],["35380","New Orleans-Metairie, LA",955198,69043,7518,36098,32945,25889,631,331,7953,2882,95894,8807,103847,34804,66.5],["35620","New York-Newark-Jersey City, NY-NJ",19732868,1232993,32380,691326,541667,248585,13541,3458,202678,13791,1498577,35274,1701255,468262,72.5],["35660","Niles, MI",151087,8139,2719,24,8115,4666,328,454,564,473,13587,3005,14151,6012,57.5],["35840","North Port-Bradenton-Sarasota, FL",928333,65796,8381,31318,34478,48991,2858,569,4326,1788,118214,10368,122540,56744,53.7],["35980","Norwich-New London-Willimantic, CT",280054,16162,3614,9038,7124,13770,1053,99,1623,1068,31084,4334,32707,16545,49.4],["36100","Ocala, FL",425459,24986,7129,9166,15820,21689,858,523,1593,1078,48056,7601,49649,24663,50.3],["36220","Odessa, TX",167048,9563,3718,7079,2484,12203,2426,196,1114,940,24388,5425,25502,15939,37.5],["36260","Ogden, UT",660706,34394,4669,5656,28738,20197,4569,433,3814,1684,59593,6112,63407,29013,54.2],["36420","Oklahoma City, OK",1481395,143988,10998,78777,65211,48090,12810,6971,8899,3061,211859,13397,220758,76770,65.2],["36500","Olympia-Lacey-Tumwater, WA",298931,14969,3664,9396,5573,14168,3678,531,1533,786,33346,5268,34879,19910,42.9],["36540","Omaha, NE-IA",987608,85170,6937,53182,31988,30050,5780,5412,6821,2611,126412,8226,133233,48063,63.9],["36740","Orlando-Kissimmee-Sanford, FL",2911718,274103,19780,81963,192140,112626,3201,1978,43256,7710,391908,24117,435164,161061,63.0],["36780","Oshkosh-Neenah, WI",171859,8327,1745,6139,2188,9392,1265,1151,2155,1688,20135,2601,22290,13963,37.4],["36980","Owensboro, KY",111072,6257,2533,4735,1522,2186,1218,1015,129,142,10676,3062,10805,4548,57.9],["37100","Oxnard-Thousand Oaks-Ventura, CA",826436,41669,6247,27769,13900,19720,263,29,5977,1906,61681,7448,67658,25989,61.6],["37140","Paducah, KY-IL",99343,4195,1057,1441,2754,2309,1604,767,330,488,8875,1915,9205,5010,45.6],["37340","Palm Bay-Melbourne-Titusville, FL",653604,40069,4998,17483,22586,33863,2562,1414,3156,1498,77908,6595,81064,40995,49.4],["37460","Panama City-Panama City Beach, FL",224010,19636,4374,9328,10308,15658,947,850,4054,2676,37091,5316,41145,21509,47.7],["37620","Parkersburg-Vienna, WV",86410,6189,2323,2655,3534,1331,433,555,143,234,8508,2213,8651,2462,71.5],["37860","Pensacola-Ferry Pass-Brent, FL",533454,41373,5488,8733,32640,31248,4065,2309,3727,2526,78995,7839,82722,41349,50.0],["37900","Peoria, IL",361098,20970,3601,9555,11415,11657,2007,258,261,197,34892,4448,35153,14183,59.7],["37980","Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",6267070,434559,17688,179382,255177,150444,10021,2525,35156,5886,597549,22155,632705,198146,68.7],["38060","Phoenix-Mesa-Chandler, AZ",5130873,487706,24103,351165,136541,163572,11119,5131,44731,6476,667528,27608,712259,224553,68.5],["38240","Pinehurst-Southern Pines, NC",107364,4204,1920,2326,1878,3973,1874,7,230,227,10058,2458,10288,6084,40.9],["38300","Pittsburgh, PA",2405989,163017,8999,34869,128148,50096,6804,2560,11277,3163,222477,9652,233754,70737,69.7],["38340","Pittsfield, MA",127940,7387,2126,2699,4688,3421,558,0,856,668,11366,2351,12222,4835,60.4],["38540","Pocatello, ID",89755,6729,1694,5275,1454,3889,1183,710,827,736,12511,2021,13338,6609,50.4],["38940","Port St. Lucie, FL",551012,17900,4037,7013,10887,30009,766,213,3041,1823,48888,7509,51929,34029,34.5],["38860","Portland-South Portland, ME",567726,32890,4338,9112,23778,16663,2403,3572,4728,2618,55528,5401,60256,27366,54.6],["38900","Portland-Vancouver-Hillsboro, OR-WA",2513684,220588,12840,132004,88584,81264,5759,2368,14613,3850,309979,15673,324592,104004,68.0],["39150","Prescott Valley-Prescott, AZ",250309,14102,2619,7172,6930,16672,6727,129,754,627,37630,6713,38384,24282,36.7],["39300","Providence-Warwick, RI-MA",1687656,106413,10801,24486,81927,49853,2576,358,15194,3630,159200,12805,174394,67981,61.0],["39340","Provo-Orem-Lehi, UT",746317,66960,7777,38797,28163,36362,2887,3191,5190,1612,109400,9426,114590,47630,58.4],["39380","Pueblo, CO",168967,9169,3391,7246,1923,4588,796,2331,558,544,16884,3818,17442,8273,52.6],["39460","Punta Gorda, FL",211224,5067,1748,770,4297,17472,2415,647,3032,2120,25601,5915,28633,23566,17.7],["39540","Racine-Mount Pleasant, WI",196420,7469,2218,4844,2625,7000,971,1103,228,231,16543,3189,16771,9302,44.5],["39580","Raleigh-Cary, NC",1540297,108279,11144,62161,46118,72250,7224,2008,17666,4845,189761,13228,207427,99148,52.2],["39660","Rapid City, SD",152123,14333,3270,9525,4808,4601,1107,1397,1270,545,21438,3979,22708,8375,63.1],["39740","Reading, PA",435367,30747,4823,14928,15819,16835,1695,316,3173,1439,49593,5520,52766,22019,58.3],["39820","Redding, CA",179366,15388,3638,9329,6059,4260,1623,291,545,382,21562,4194,22107,6719,69.6],["39900","Reno, NV",569530,55644,5393,32685,22959,23313,3156,579,6462,3467,82692,6420,89154,33510,62.4],["40060","Richmond, VA",1356209,111935,8486,32734,79201,50384,2247,4968,6458,2244,169534,10052,175992,64057,63.6],["40140","Riverside-San Bernardino-Ontario, CA",4691731,272243,20326,75253,196990,144888,3328,962,19463,2972,421421,20006,440884,168641,61.7],["40220","Roanoke, VA",312167,20020,4461,9524,10496,9589,700,760,332,306,31069,4787,31401,11381,63.8],["40340","Rochester, MN",227846,11602,2469,7621,3981,7502,2080,1163,883,713,22347,3247,23230,11628,49.9],["40380","Rochester, NY",1046127,81928,7192,23653,58275,32737,4157,1107,8109,1742,119929,8000,128038,46110,64.0],["40420","Rockford, IL",333535,19643,5230,12372,7271,7815,2403,889,636,709,30750,5610,31386,11743,62.6],["40580","Rocky Mount, NC",145309,7086,2707,3023,4063,5094,1051,41,352,153,13272,3036,13624,6538,52.0],["40660","Rome, GA",99621,5990,2509,3652,2338,3215,560,16,191,242,9781,2820,9972,3982,60.1],["40900","Sacramento-Roseville-Folsom, CA",2440337,184143,11915,75527,108616,78543,3822,1686,21248,4474,268194,14614,289442,105299,63.6],["40980","Saginaw, MI",185354,10791,3137,5786,5005,6207,1105,570,228,210,18673,3377,18901,8110,57.1],["41420","Salem, OR",438528,31433,4357,16877,14556,18796,1636,114,2767,1915,51979,5869,54746,23313,57.4],["41500","Salinas, CA",430137,19058,3991,5345,13713,12780,407,86,3573,1332,32331,4171,35904,16846,53.1],["41540","Salisbury, MD",130180,8826,2211,5134,3692,6916,1780,101,52,3,17623,3597,17675,8849,49.9],["41620","Salt Lake City-Murray, UT",1286730,104459,9364,32600,71859,45710,2297,4964,10338,3061,157430,10735,167768,63309,62.3],["41660","San Angelo, TX",119870,10914,3562,10331,583,6218,145,433,1562,1317,17710,4015,19272,8358,56.6],["41700","San Antonio-New Braunfels, TX",2735882,294516,21416,211265,83251,113735,7906,3478,25203,5757,419635,23159,444838,150322,66.2],["41740","San Diego-Chula Vista-Carlsbad, CA",3261088,253779,17919,157805,95974,102688,4653,1872,28594,4673,362992,21682,391586,137807,64.8],["41860","San Francisco-Oakland-Fremont, CA",4605564,345282,14596,192527,152755,133619,2198,1084,45819,6544,482183,15760,528002,182720,65.4],["41940","San Jose-Sunnyvale-Santa Clara, CA",1977654,146137,10256,124827,21310,75142,325,162,29763,4453,221766,10747,251529,105392,58.1],["42020","San Luis Obispo-Paso Robles, CA",278832,26115,4529,9656,16459,17807,452,415,133,165,44789,4918,44922,18807,58.1],["41780","Sandusky, OH",112097,6378,1842,2743,3635,3674,842,48,1384,1259,10942,2604,12326,5948,51.7],["42100","Santa Cruz-Watsonville, CA",260101,14013,2769,6774,7239,17211,305,134,742,462,31663,4032,32405,18392,43.2],["42140","Santa Fe, NM",156747,8278,2334,6260,2018,5820,1083,215,829,680,15396,2563,16225,7947,51.0],["42200","Santa Maria-Santa Barbara, CA",440173,33071,4248,12534,20537,24124,521,123,5569,2171,57839,5943,63408,30337,52.2],["42220","Santa Rosa-Petaluma, CA",480254,29791,4849,14713,15078,14467,2526,158,2587,1326,46942,6450,49529,19738,60.1],["42340","Savannah, GA",426442,25237,4565,12747,12490,21604,2735,1998,3928,1883,51574,5395,55502,30265,45.5],["42540","Scranton--Wilkes-Barre, PA",567043,32063,5053,9821,22242,13426,2345,666,2648,1255,48500,6081,51148,19085,62.7],["42660","Seattle-Tacoma-Bellevue, WA",4104432,391087,16705,213720,177367,136568,11280,2708,57450,7610,541643,16987,599093,208006,65.3],["42680","Sebastian-Vero Beach-West Vero Corridor, FL",170639,5407,2953,1616,3791,11460,578,303,584,379,17748,3733,18332,12925,29.5],["42700","Sebring, FL",109420,7918,2434,1108,6810,4578,666,2576,759,893,15738,4272,16497,8579,48.0],["43100","Sheboygan, WI",116879,5265,1721,2660,2605,2937,1503,67,128,175,9772,2462,9900,4635,53.2],["43300","Sherman-Denison, TX",148601,10698,3665,6995,3703,6934,1443,605,563,426,19680,4408,20243,9545,52.8],["43340","Shreveport-Bossier City, LA",379458,30570,7216,26097,4473,8958,1024,1567,1003,791,42119,6791,43122,12552,70.9],["43420","Sierra Vista-Douglas, AZ",125102,6016,2002,2949,3067,7141,733,118,594,378,14008,2664,14602,8586,41.2],["43580","Sioux City, IA-NE-SD",143243,6419,2084,2807,3612,2212,654,291,333,294,9576,2164,9909,3490,64.8],["43620","Sioux Falls, SD-MN",305027,26113,3961,20346,5767,6797,2469,3572,2392,966,38951,4721,41343,15230,63.2],["43640","Slidell-Mandeville-Covington, LA",275269,16519,3877,5195,11324,11727,230,125,831,694,28601,4920,29432,12913,56.1],["43780","South Bend-Mishawaka, IN-MI",321773,17056,2996,10407,6649,13534,1677,463,2285,925,32730,3939,35015,17959,48.7],["43900","Spartanburg, SC",390463,28699,4840,6494,22205,13421,2000,668,2000,1018,44788,5765,46788,18089,61.3],["44060","Spokane-Spokane Valley, WA",598601,49110,6108,27943,21167,21046,3083,639,2903,1594,73878,7163,76781,27671,64.0],["44100","Springfield, IL",203471,13216,2891,9227,3989,3980,548,100,408,381,17844,3224,18252,5036,72.4],["44140","Springfield, MA",459807,22366,4311,8622,13744,12794,1375,17,2308,1899,36552,5709,38860,16494,57.6],["44180","Springfield, MO",493006,44395,5915,21366,23029,14312,2540,3342,1004,490,64589,6213,65593,21198,67.7],["44220","Springfield, OH",133735,8776,2653,5537,3239,6954,1928,0,1262,744,17658,3415,18920,10144,46.4],["41060","St. Cloud, MN",203087,14065,2488,5733,8332,8841,1856,2408,537,475,27170,3173,27707,13642,50.8],["41100","St. George, UT",205633,18109,4578,11663,6446,14266,4323,809,670,473,37507,5616,38177,20068,47.4],["41140","St. Joseph, MO-KS",117833,5996,2143,4593,1403,4049,706,704,598,563,11455,2355,12053,6057,49.7],["41180","St. Louis, MO-IL",2783112,227384,14417,45519,181865,54410,6335,5258,13039,2983,293387,15396,306426,79042,74.2],["44300","State College, PA",159127,11994,2925,5668,6326,17497,1871,175,2174,1258,31537,3358,33711,21717,35.6],["44420","Staunton-Stuarts Draft, VA",127615,9876,2866,3289,6587,6714,295,1137,550,400,18022,3550,18572,8696,53.2],["44700","Stockton-Lodi, CA",806001,41502,6773,25767,15735,31632,215,598,7279,2663,73947,9146,81226,39724,51.1],["44940","Sumter, SC",102372,7201,3003,2741,4460,5927,513,1086,528,556,14727,2939,15255,8054,47.2],["45060","Syracuse, NY",648440,43968,5091,16140,27828,25845,2448,626,7248,3622,72887,5459,80135,36167,54.9],["45220","Tallahassee, FL",395069,39170,5104,30099,9071,30423,2407,3102,3768,2204,75102,6858,78870,39700,49.7],["45300","Tampa-St. Petersburg-Clearwater, FL",3393407,272803,16286,112190,160613,125975,4929,3097,41061,7816,406804,18880,447865,175062,60.9],["45460","Terre Haute, IN",165067,15597,3083,8062,7535,5878,1474,1555,159,198,24504,3424,24663,9066,63.2],["45500","Texarkana, TX-AR",143949,5315,1382,1644,3671,3948,1480,803,581,426,11546,2249,12127,6812,43.8],["45780","Toledo, OH",594221,43755,5368,27450,16305,21847,3890,1657,2190,1030,71149,6318,73339,29584,59.7],["45820","Topeka, KS",229852,15739,2927,10051,5688,3932,519,1975,259,358,22165,3438,22424,6685,70.2],["45900","Traverse City, MI",155508,8352,2014,587,7765,4754,531,624,236,241,14261,2702,14497,6145,57.6],["45940","Trenton-Princeton, NJ",388250,23793,5197,12125,11668,24328,159,83,4372,1783,48363,6204,52735,28942,45.1],["46060","Tucson, AZ",1071602,100818,9965,74835,25983,45551,2461,3214,8603,2696,152044,11496,160647,59829,62.8],["46140","Tulsa, OK",1047487,92366,5827,46967,45399,28363,7507,4786,6190,1807,133022,6655,139212,46846,66.3],["46220","Tuscaloosa, AL",279059,26210,5508,19075,7135,15524,1696,2954,793,494,46384,5936,47177,20967,55.6],["46300","Twin Falls, ID",119942,6432,1898,4509,1923,3757,1688,1531,873,533,13408,2954,14281,7849,45.0],["46340","Tyler, TX",246645,16864,3688,12188,4676,12324,3084,1405,905,655,33677,4777,34582,17718,48.8],["46520","Urban Honolulu, HI",988836,72039,7265,31617,40422,42016,3870,981,10981,2083,118906,8482,129887,57848,55.5],["46540","Utica-Rome, NY",284367,16537,4391,6666,9871,6965,3620,67,674,361,27189,4656,27863,11326,59.4],["46660","Valdosta, GA",150912,7682,2378,4697,2985,7743,1162,482,978,1025,17069,3846,18047,10365,42.6],["46700","Vallejo, CA",451097,23624,4810,4966,18658,22557,164,152,3349,2040,46497,6138,49846,26222,47.4],["47020","Victoria, TX",97520,5421,2337,4737,684,3139,70,742,1076,1055,9372,2697,10448,5027,51.9],["47220","Vineland, NJ",153134,5960,1953,2266,3694,6853,252,261,647,563,13326,3006,13973,8013,42.7],["47260","Virginia Beach-Chesapeake-Norfolk, VA-NC",1777917,138532,10345,101005,37527,85737,6789,6827,13516,3493,237885,13816,251401,112869,55.1],["47300","Visalia, CA",476985,26961,5138,8661,18300,7686,478,0,1926,752,35125,5336,37051,10090,72.8],["47380","Waco, TX",302451,27301,5202,18687,8614,14788,1365,1697,1780,1804,45151,5112,46931,19630,58.2],["47460","Walla Walla, WA",61874,1963,938,1245,718,5642,192,189,552,414,7986,1868,8538,6575,23.0],["47580","Warner Robins, GA",202594,15130,4421,10783,4347,10274,655,391,527,522,26450,5025,26977,11847,56.1],["47900","Washington-Arlington-Alexandria, DC-VA-MD-WV",6366155,494237,24338,187563,306674,204446,10131,6395,83055,7974,715209,29221,798264,304027,61.9],["47930","Waterbury-Shelton, CT",457060,18127,4182,6568,11559,16955,967,80,3940,2651,36129,5384,40069,21942,45.2],["47940","Waterloo-Cedar Falls, IA",168644,13737,2912,10150,3587,3797,2656,2628,766,568,22818,3407,23584,9847,58.2],["48060","Watertown-Fort Drum, NY",111602,10730,2764,3889,6841,10213,1056,1135,2014,1391,23134,4162,25148,14418,42.7],["48140","Wausau, WI",137904,5573,1592,3255,2318,1883,1474,1543,155,124,10473,2503,10628,5055,52.4],["48260","Weirton-Steubenville, WV-OH",111895,4903,1286,2296,2607,3954,162,66,109,103,9085,1843,9194,4291,53.3],["48300","Wenatchee-East Wenatchee, WA",125992,8913,2982,5866,3047,4161,2035,358,728,494,15467,3195,16195,7282,55.0],["48540","Wheeling, WV-OH",134575,10267,2167,2094,8173,4622,248,894,157,248,16031,2522,16188,5921,63.4],["48660","Wichita Falls, TX",148326,12415,3362,9807,2608,8798,1749,1211,720,409,24173,3842,24893,12478,49.9],["48620","Wichita, KS",652703,56008,6198,35195,20813,20066,3291,2450,3335,1353,81815,7018,85150,29142,65.8],["48680","Wildwood-The Villages, FL",154293,3326,1473,3159,167,8956,2260,615,593,416,15157,3463,15750,12424,21.1],["48700","Williamsport, PA",112206,7010,2646,3581,3429,3054,1369,244,81,128,11677,3090,11758,4748,59.6],["48900","Wilmington, NC",476150,27985,5664,14924,13061,24800,2367,1651,3060,1258,56803,6353,59863,31878,46.7],["49020","Winchester, VA-WV",146995,5262,1471,1639,3623,8330,806,312,72,111,14710,3264,14782,9520,35.6],["49180","Winston-Salem, NC",698744,38041,6250,16936,21105,32093,3794,925,3929,2397,74853,8152,78782,40741,48.3],["49340","Worcester, MA",872849,45865,6608,18360,27505,38067,1875,159,5679,2098,85966,9229,91645,45780,50.0],["49420","Yakima, WA",255657,24810,6171,10076,14734,5185,1529,300,2939,1832,31824,6102,34763,9953,71.4],["49620","York-Hanover, PA",467471,25613,4281,9516,16097,17972,345,383,2591,2316,44313,5202,46904,21291,54.6],["49660","Youngstown-Warren, OH",422073,27955,4222,8645,19310,8652,2507,195,1475,573,39309,4805,40784,12829,68.5],["49700","Yuba City, CA",184187,6972,2629,2662,4310,12055,1012,252,1309,737,20291,4124,21600,14628,32.3],["49740","Yuma, AZ",217915,9555,4469,3492,6063,6328,383,1166,4048,3252,17432,4362,21480,11925,44.5]];</script>
+  <script>
+    const KEYS = ["id","name","total","sameMsa","sameMsaMoe","fromCity","fromRemainder","otherMetro","micro","nonMetro","abroad","abroadMoe","usMove","usMoveMoe","movers","inbound","intraShare"];
+    const metros = window.MSA_ROWS.map((row) => {
+      const m = {};
+      KEYS.forEach((k, i) => { m[k] = row[i]; });
+      return m;
+    });
+    const byId = Object.fromEntries(metros.map((m) => [m.id, m]));
+    const shares = metros.map((m) => m.intraShare).sort((a, b) => a - b);
+    const median = shares[Math.floor(shares.length / 2)];
+
+    const els = {
+      q: document.getElementById("q"),
+      results: document.getElementById("results"),
+      headline: document.getElementById("headline"),
+      lede: document.getElementById("lede"),
+      share: document.getElementById("share"),
+      shareLabel: document.getElementById("shareLabel"),
+      intraN: document.getElementById("intraN"),
+      inN: document.getElementById("inN"),
+      allN: document.getElementById("allN"),
+      rank: document.getElementById("rank"),
+      originIntro: document.getElementById("originIntro"),
+      originBars: document.getElementById("originBars"),
+      originTable: document.getElementById("originTable"),
+      peerIntro: document.getElementById("peerIntro"),
+      peerBars: document.getElementById("peerBars"),
+      readThis: document.getElementById("readThis"),
+    };
+
+    let selected = byId["38300"] || metros[0];
+    let activeIndex = 0;
+    let matches = [];
+
+    function fmt(n) {
+      return Math.round(n).toLocaleString("en-US");
+    }
+    function pct(n, d) {
+      return d ? (100 * n) / d : 0;
+    }
+    function moePct(a, moeA, b, moeB) {
+      if (moeA == null || moeB == null || !b) return null;
+      const p = a / b;
+      let inner = moeA * moeA - p * p * moeB * moeB;
+      if (inner < 0) inner = moeA * moeA + p * p * moeB * moeB;
+      return (100 * Math.sqrt(inner)) / b;
+    }
+    function shortName(m) {
+      return m.name.replace(/, [A-Z]{2}.*$/, (s) => s.split("-")[0]);
+    }
+    function percentile(share) {
+      const below = shares.filter((s) => s < share).length;
+      return Math.round((100 * below) / (shares.length - 1));
+    }
+
+    function originRows(m) {
+      return [
+        ["Same metro", m.sameMsa, true],
+        ["Principal city", m.fromCity, false],
+        ["Rest of the metro", m.fromRemainder, false],
+        ["Different U.S. metro", m.otherMetro, true],
+        ["Micropolitan area", m.micro, true],
+        ["Not in a metro or micro", m.nonMetro, true],
+        ["Abroad", m.abroad, true],
+      ];
+    }
+
+    function similarPeers(m, n = 12) {
+      return metros
+        .slice()
+        .sort((a, b) => Math.abs(a.total - m.total) - Math.abs(b.total - m.total))
+        .slice(0, n)
+        .sort((a, b) => b.intraShare - a.intraShare);
+    }
+
+    function bar(label, share, kind, selectedRow) {
+      const row = document.createElement("div");
+      row.className = "bar-row" + (selectedRow ? " selected" : "");
+      row.innerHTML =
+        '<span class="name"></span><div class="track"><div class="fill"></div></div><span class="pct"></span>';
+      row.querySelector(".name").textContent = label;
+      const fill = row.querySelector(".fill");
+      fill.style.width = Math.max(0, Math.min(100, share)).toFixed(1) + "%";
+      if (kind) fill.classList.add(kind);
+      row.querySelector(".pct").textContent = share.toFixed(1) + "%";
+      return row;
+    }
+
+    function render(m) {
+      selected = m;
+      const moversMoe =
+        m.usMoveMoe != null && m.abroadMoe != null
+          ? Math.sqrt(m.usMoveMoe ** 2 + m.abroadMoe ** 2)
+          : null;
+      const moe = moePct(m.sameMsa, m.sameMsaMoe, m.movers, moversMoe);
+      const pctl = percentile(m.intraShare);
+      const higher = metros.filter((x) => x.intraShare < m.intraShare).length;
+
+      document.title = "Who is moving into the " + m.name + " metro?";
+      els.headline.textContent = "Who is moving into the " + m.name + " metro?";
+      els.lede.textContent =
+        "Of people who changed homes last year and now live in this metro, " +
+        m.intraShare.toFixed(1) +
+        "% already lived somewhere in the same metro.";
+      els.q.value = m.name;
+      els.share.textContent = m.intraShare.toFixed(1) + "%";
+      els.shareLabel.textContent =
+        "Share of movers whose previous home was also in this metro" +
+        (moe != null ? "  ±" + moe.toFixed(1) + " pp" : "");
+      els.intraN.textContent = fmt(m.sameMsa);
+      els.inN.textContent = fmt(m.inbound);
+      els.allN.textContent = fmt(m.movers);
+      els.rank.textContent =
+        "Higher local-move share than " +
+        higher.toLocaleString("en-US") +
+        " of " +
+        metros.length +
+        " U.S. metros (" +
+        pctl +
+        "th percentile). National median: " +
+        median.toFixed(1) +
+        "%.";
+
+      els.originIntro.textContent =
+        "Anyone whose new address is in this metro counts, including someone who only changed apartments inside it. People who stayed in the same house are left out.";
+
+      els.originBars.replaceChildren(
+        bar("Same metro", pct(m.sameMsa, m.movers), null),
+        bar("Different U.S. metro", pct(m.otherMetro, m.movers), "inbound"),
+        bar("Abroad", pct(m.abroad, m.movers), "muted"),
+        bar("Micropolitan area", pct(m.micro, m.movers), "muted"),
+        bar("Outside any CBSA", pct(m.nonMetro, m.movers), "muted")
+      );
+
+      const tableRows = originRows(m).map(([label, n, top], i) => {
+        const tr = document.createElement("tr");
+        const td1 = document.createElement("td");
+        const td2 = document.createElement("td");
+        td1.textContent = label;
+        if (!top) td1.className = "indent";
+        td2.textContent = fmt(n);
+        tr.append(td1, td2);
+        return tr;
+      });
+      els.originTable.replaceChildren(...tableRows);
+
+      const peers = similarPeers(m);
+      els.peerIntro.textContent =
+        "Among metros of similar population, local movers usually dominate — but growing or college-heavy metros draw a larger share from outside.";
+      els.peerBars.replaceChildren(
+        ...peers.map((p) => bar(p.name, p.intraShare, null, p.id === m.id))
+      );
+
+      els.readThis.textContent =
+        "If 100 people now live in " +
+        shortName(m) +
+        " and moved in the last year, about " +
+        Math.round(m.intraShare) +
+        " already lived somewhere in this metro. " +
+        fmt(m.fromCity) +
+        " of those local movers came from the principal city; " +
+        fmt(m.fromRemainder) +
+        " came from the rest of the metro.";
+
+      history.replaceState(null, "", "#" + m.id);
+    }
+
+    function search(q) {
+      const t = q.trim().toLowerCase();
+      if (!t) return metros.slice(0, 12);
+      return metros.filter((m) => m.name.toLowerCase().includes(t)).slice(0, 20);
+    }
+
+    function showList(items) {
+      matches = items;
+      activeIndex = 0;
+      if (!items.length) {
+        els.results.hidden = true;
+        els.q.setAttribute("aria-expanded", "false");
+        return;
+      }
+      els.results.replaceChildren(
+        ...items.map((m, i) => {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.id = "opt-" + m.id;
+          btn.setAttribute("role", "option");
+          btn.setAttribute("aria-selected", i === 0 ? "true" : "false");
+          btn.textContent = m.name;
+          btn.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            choose(m);
+          });
+          li.append(btn);
+          return li;
+        })
+      );
+      els.results.hidden = false;
+      els.q.setAttribute("aria-expanded", "true");
+    }
+
+    function highlight(i) {
+      activeIndex = (i + matches.length) % matches.length;
+      [...els.results.querySelectorAll("button")].forEach((btn, idx) => {
+        btn.setAttribute("aria-selected", idx === activeIndex ? "true" : "false");
+      });
+    }
+
+    function choose(m) {
+      els.results.hidden = true;
+      els.q.setAttribute("aria-expanded", "false");
+      render(m);
+      els.q.blur();
+    }
+
+    els.q.addEventListener("focus", () => showList(search(els.q.value === selected.name ? "" : els.q.value)));
+    els.q.addEventListener("input", () => showList(search(els.q.value)));
+    els.q.addEventListener("keydown", (e) => {
+      if (els.results.hidden && (e.key === "ArrowDown" || e.key === "Enter")) {
+        showList(search(els.q.value === selected.name ? "" : els.q.value));
+        return;
+      }
+      if (e.key === "ArrowDown") { e.preventDefault(); highlight(activeIndex + 1); }
+      if (e.key === "ArrowUp") { e.preventDefault(); highlight(activeIndex - 1); }
+      if (e.key === "Enter" && matches[activeIndex]) { e.preventDefault(); choose(matches[activeIndex]); }
+      if (e.key === "Escape") {
+        els.results.hidden = true;
+        els.q.value = selected.name;
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".picker")) els.results.hidden = true;
+    });
+
+    const fromHash = byId[location.hash.replace("#", "")];
+    render(fromHash || selected);
+  </script>
 </body>
 </html>
